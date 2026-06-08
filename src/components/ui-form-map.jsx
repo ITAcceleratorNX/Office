@@ -104,17 +104,44 @@ export function MapPlaceholder({ objects, height = 480, single = false }) {
 
 const FORMATS = ["Офис", "Сервисный офис", "Офис под ключ", "Пока не знаю"];
 
+function formatPhoneInput(raw) {
+  let digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("7") || digits.startsWith("8")) digits = digits.slice(1);
+  digits = digits.slice(0, 10);
+  if (!digits) return "+7";
+  let out = "+7";
+  if (digits.length > 0) out += " " + digits.slice(0, 3);
+  if (digits.length > 3) out += " " + digits.slice(3, 6);
+  if (digits.length > 6) out += " " + digits.slice(6, 8);
+  if (digits.length > 8) out += " " + digits.slice(8, 10);
+  return out;
+}
+
+function phoneBodyDigits(phone) {
+  const digits = phone.replace(/\D/g, "");
+  return digits.startsWith("7") ? digits.slice(1) : digits;
+}
+
 export function LeadForm({ sourcePage, objectTitle, compact }) {
-  const [v, setV] = useState({ name: "", phone: "", company: "", area: "", format: "", comment: "" });
+  const [v, setV] = useState({ name: "", phone: "+7", company: "", area: "", format: "", comment: "" });
   const [err, setErr] = useState({});
   const set = (k) => (e) => setV((s) => ({ ...s, [k]: e.target.value }));
+
+  function onPhoneChange(e) {
+    setV((s) => ({ ...s, phone: formatPhoneInput(e.target.value) }));
+  }
+
+  function onPhoneKeyDown(e) {
+    if (e.key !== "Backspace") return;
+    if (phoneBodyDigits(v.phone).length === 0) e.preventDefault();
+  }
 
   function validate() {
     const e = {};
     if (!v.name.trim()) e.name = "Укажите имя";
-    const digits = v.phone.replace(/\D/g, "");
-    if (!v.phone.trim()) e.phone = "Укажите телефон";
-    else if (digits.length < 10) e.phone = "Введите корректный номер";
+    const digits = phoneBodyDigits(v.phone);
+    if (!digits.length) e.phone = "Укажите телефон";
+    else if (digits.length < 10) e.phone = "Введите 10 цифр номера";
     if (!v.company.trim()) e.company = "Укажите компанию";
     setErr(e);
     return Object.keys(e).length === 0;
@@ -142,7 +169,16 @@ export function LeadForm({ sourcePage, objectTitle, compact }) {
         </div>
         <div className="field">
           <label>Телефон <span className="req">*</span></label>
-          <input className={"control" + (err.phone ? " invalid" : "")} value={v.phone} onChange={set("phone")} placeholder="+7 ___ ___ __ __" inputMode="tel" />
+          <input
+            className={"control" + (err.phone ? " invalid" : "")}
+            value={v.phone}
+            onChange={onPhoneChange}
+            onKeyDown={onPhoneKeyDown}
+            onFocus={() => { if (!v.phone) setV((s) => ({ ...s, phone: "+7" })); }}
+            placeholder="+7 ___ ___ __ __"
+            inputMode="tel"
+            autoComplete="tel"
+          />
           {err.phone && <span className="err-msg">{err.phone}</span>}
         </div>
         <div className="field">
