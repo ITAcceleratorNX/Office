@@ -11,6 +11,7 @@ import {
 } from "../components/ui-core.jsx";
 import { MapPlaceholder, LeadForm } from "../components/ui-form-map.jsx";
 import { MapLeaflet } from "../components/MapLeaflet.jsx";
+import { CardsCarousel } from "../components/CardsCarousel.jsx";
 
 const T = TMK;
 
@@ -26,8 +27,14 @@ function SectionHead({ eyebrow, title, text, dark, center, max }) {
 }
 
 /* ======================= HOME ======================= */
+const MAP_HOME_SLUGS = [
+  "green-tower", "triumph", "koktem-towers", "koktem-grand", "venus",
+  "dial-plaza", "teniz-towers", "time-square", "nurly-tau",
+];
+
 function Home() {
   const featured = ["green-tower", "dial-plaza", "nurly-tau", "venus", "koktem-grand", "teniz-towers"].map(T.bySlug);
+  const mapObjects = MAP_HOME_SLUGS.map(T.bySlug).filter(Boolean);
   const formats = [
     { ic: Ic.briefcase, t: "Офис", d: "Классический офис в бизнес-центре под аренду: выбираете площадь и этаж под структуру команды." },
     { ic: Ic.sparkle, t: "Сервисный офис", d: "Готовое рабочее пространство с мебелью, инфраструктурой и обслуживанием — можно заехать быстрее." },
@@ -82,9 +89,9 @@ function Home() {
             </div>
             <a className="btn btn-light" onClick={() => go("/catalog")}>Весь каталог {Ic.arrow({ s: 15 })}</a>
           </div>
-          <div className="cards-grid">
+          <CardsCarousel>
             {featured.map((o) => <ObjectCardMain key={o.slug} o={o} />)}
-          </div>
+          </CardsCarousel>
         </div>
       </section>
 
@@ -95,7 +102,7 @@ function Home() {
             <span className="eyebrow">{Ic.pin({ s: 14 })} На карте</span>
             <h2 style={{ marginTop: 16 }}>Все объекты на карте Алматы</h2>
           </div>
-          <MapLeaflet objects={T.objects} height={520} />
+          <MapLeaflet objects={mapObjects} />
         </div>
       </section>
 
@@ -333,9 +340,9 @@ function Catalog() {
           {/* GRID */}
           <div style={{ marginTop: 32 }}>
             {filtered.length > 0 ? (
-              <div className="cards-grid catalog">
+              <CardsCarousel className="catalog" resetKey={page + "-" + (paged[0]?.slug ?? "empty")}>
                 {paged.map((o) => <ObjectCardCatalog key={o.slug} o={o} />)}
-              </div>
+              </CardsCarousel>
             ) : (
               <div className="empty-state">
                 <h3>По вашему запросу ничего не найдено</h3>
