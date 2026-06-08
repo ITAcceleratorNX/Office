@@ -181,7 +181,7 @@ export function ObjectCardMain({ o }) {
         <h3>{o.title}</h3>
         <div className="addr">{o.address}</div>
         <div className="specs">
-          <div className="sp"><b>{o.gbaLabel}</b><span>общая площадь</span></div>
+          {o.gbaLabel && <div className="sp"><b>{o.gbaLabel}</b><span>общая площадь</span></div>}
           <div className="sp"><b>{o.floors}</b><span>этажей</span></div>
         </div>
         <div className="actions">
@@ -195,7 +195,7 @@ export function ObjectCardMain({ o }) {
 
 export function ObjectCardCatalog({ o }) {
   return (
-    <article className="obj-card">
+    <article className="obj-card catalog-card">
       <div className="media">
         <div className="badges">
           <ClassBadge o={o} />
@@ -204,17 +204,28 @@ export function ObjectCardCatalog({ o }) {
         <PhotoSlot ph={o.title} src={o.photo} alt={o.title} />
       </div>
       <div className="body">
-        <div className="loc">{Ic.pin({ s: 14 })} {o.district} район · {o.address}</div>
-        <h3>{o.title}</h3>
-        <p className="desc">{o.shortDescription}</p>
-        <div className="specs">
-          <div className="sp"><b>{o.gbaLabel}</b><span>общая</span></div>
-          <div className="sp"><b>{o.gfaLabel.replace("/этаж", "")}</b><span>этаж</span></div>
-          <div className="sp"><b>{o.floors}</b><span>этажей</span></div>
+        <div className="obj-card-main">
+          <div className="loc">{Ic.pin({ s: 14 })} {o.district} район · {o.address}</div>
+          <h3>{o.title}</h3>
+          <p className="desc">{o.shortDescription}</p>
         </div>
-        <div className="actions">
-          <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее {Ic.arrow({ s: 15 })}</a>
-          <a className="btn btn-wa btn-sm" href={WA(WT.card(o.title))} target="_blank" rel="noopener">{Ic.wa({ s: 16 })}</a>
+        <div className="obj-card-foot">
+          <div className="specs">
+            <div className="sp">
+              {o.gbaLabel ? <><b>{o.gbaLabel}</b><span>общая</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
+            </div>
+            <div className="sp">
+              {o.gfaLabel ? <><b>{o.gfaLabel.replace("/этаж", "")}</b><span>этаж</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
+            </div>
+            <div className="sp">
+              <b>{o.floors}</b>
+              <span>этажей</span>
+            </div>
+          </div>
+          <div className="actions">
+            <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее {Ic.arrow({ s: 15 })}</a>
+            <a className="btn btn-wa btn-sm" href={WA(WT.card(o.title))} target="_blank" rel="noopener">{Ic.wa({ s: 16 })}</a>
+          </div>
         </div>
       </div>
     </article>

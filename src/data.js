@@ -1,9 +1,4 @@
-/* ============================================================
-   TMK Limited Properties Services — objects dataset (MVP)
-   Single source of truth. No admin. Prices never stored/shown.
-   ============================================================ */
-
-// WhatsApp
+import { buildExtraObjects, finalizeCatalog } from "./catalog-extra.js";
   const WA_NUMBER = "77009737138";
   const WA_TEXT = {
     general: "Здравствуйте! Интересует аренда коммерческой недвижимости. Подскажите, пожалуйста, какие офисы доступны?",
@@ -24,7 +19,7 @@
     launch:  { label: "На стадии запуска",     tone: "launch" },
   };
 
-  const objects = [
+  const EXISTING_OBJECTS = [
     {
       id: 1, slug: "green-tower", photo: "/assets/objects/green-tower.jpg", title: "БЦ Green Tower",
       district: "Медеуский", address: "Достык 192/2",
@@ -272,7 +267,7 @@
       floors: 3, parking: "70 мест", status: "reno",
       coords: { lat: 43.232, lng: 76.946 },
       shortDescription: "Бизнес-центр класса B в микрорайоне Самал-2, проект в реновации — гибкие этажи от 600 до 1 000 м².",
-      similar: ["dial-plaza", "koktem-grand", "gagarina-90"],
+      similar: ["dial-plaza", "koktem-grand", "kulan"],
       planning: "Open space · Кабинеты",
       characteristics: {
         "Площади": [
@@ -331,39 +326,12 @@
       },
       infrastructure: ["Банкоматы", "Магазины", "Аптеки", "ТРЦ", "Парикмахерские"],
     },
-    {
-      id: 10, slug: "gagarina-90", title: "БЦ Гагарина 90",
-      district: "Бостандыкский", address: "Гагарина 90",
-      buildingClass: "B–B+", classKeys: ["B", "B+"], classNote: "",
-      gba: 3500, gbaLabel: "3 500 м²", gfaLabel: "300 м²/этаж",
-      floors: 8, parking: "16 мест", status: "launch",
-      coords: { lat: 43.225, lng: 76.910 },
-      shortDescription: "Бизнес-центр класса B–B+ на проспекте Гагарина на стадии запуска — компактные этажи по 300 м².",
-      similar: ["time-square", "dial-plaza", "koktem-towers"],
-      planning: "Open space · Кабинеты",
-      characteristics: {
-        "Площади": [
-          ["Общая площадь (GBA)", "3 500 м²"],
-          ["Площадь этажа (GFA)", "300 м²"],
-        ],
-        "Здание": [
-          ["Класс", "B–B+"],
-          ["Этажность", "8 этажей"],
-          ["Планировка", "Open space · Кабинеты"],
-          ["Лифты", "В наличии"],
-          ["Статус", "На стадии запуска"],
-        ],
-        "Инженерия": [
-          ["Вентиляция", "Приточно-вытяжная"],
-          ["Кондиционирование", "Центральное"],
-        ],
-        "Комфорт и доступ": [
-          ["Паркинг", "16 мест"],
-        ],
-      },
-      infrastructure: ["Магазины"],
-    },
   ];
+
+  const objects = finalizeCatalog([
+    ...EXISTING_OBJECTS,
+    ...buildExtraObjects(EXISTING_OBJECTS, MAP_BOUNDS, STATUS),
+  ]);
 
   // --- Filter option helpers (only real values) ---
   const districts = [...new Set(objects.map(o => o.district))];           // Медеуский, Алмалинский, Бостандыкский

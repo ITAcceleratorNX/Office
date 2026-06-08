@@ -215,12 +215,28 @@ function Home() {
 }
 
 /* ======================= CATALOG ======================= */
+const CATALOG_PAGE_SIZE = 9;
+
+function CatalogPagination({ page, totalPages, onChange }) {
+  if (totalPages <= 1) return null;
+  return (
+    <nav className="catalog-pagination" aria-label="Страницы каталога">
+      <button type="button" className="page-btn page-arrow" disabled={page === 1} onClick={() => onChange(page - 1)} aria-label="Предыдущая страница">←</button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+        <button key={n} type="button" className={"page-btn" + (n === page ? " active" : "")} onClick={() => onChange(n)} aria-current={n === page ? "page" : undefined}>{n}</button>
+      ))}
+      <button type="button" className="page-btn page-arrow" disabled={page === totalPages} onClick={() => onChange(page + 1)} aria-label="Следующая страница">→</button>
+    </nav>
+  );
+}
+
 function Catalog() {
   const [q, setQ] = useState("");
   const [district, setDistrict] = useState("");
   const [cls, setCls] = useState("");
   const [area, setArea] = useState("");
   const [showMap, setShowMap] = useState(false);
+  const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     return T.objects.filter((o) => {
@@ -229,11 +245,29 @@ function Catalog() {
       if (cls && !o.classKeys.includes(cls)) return false;
       if (area) {
         const r = T.areaRanges.find((x) => x.id === area);
-        if (r && !r.test(o.gba)) return false;
+        if (r && (o.gba == null || !r.test(o.gba))) return false;
       }
       return true;
     });
   }, [q, district, cls, area]);
+
+  useEffect(() => { setPage(1); }, [q, district, cls, area]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / CATALOG_PAGE_SIZE));
+  const paged = useMemo(() => {
+    const start = (page - 1) * CATALOG_PAGE_SIZE;
+    return filtered.slice(start, start + CATALOG_PAGE_SIZE);
+  }, [filtered, page]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  function changePage(next) {
+    if (next < 1 || next > totalPages || next === page) return;
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   const active = q || district || cls || area;
   const reset = () => { setQ(""); setDistrict(""); setCls(""); setArea(""); };
@@ -293,11 +327,13 @@ function Catalog() {
             </div>
           </div>
 
+          <CatalogPagination page={page} totalPages={totalPages} onChange={changePage} />
+
           {/* GRID */}
           <div style={{ marginTop: 32 }}>
             {filtered.length > 0 ? (
               <div className="cards-grid catalog">
-                {filtered.map((o) => <ObjectCardCatalog key={o.slug} o={o} />)}
+                {paged.map((o) => <ObjectCardCatalog key={o.slug} o={o} />)}
               </div>
             ) : (
               <div className="empty-state">
@@ -379,7 +415,9 @@ function ObjectPage({ slug }) {
             {o.classNote && <span className="badge badge-copper">{o.classNote}</span>}
             <StatusBadge status={o.status} />
             <span className="badge badge-outline" style={{ color: "rgba(255,255,255,0.8)", borderColor: "rgba(255,255,255,0.24)" }}>{o.floors} этажей</span>
-            <span className="badge badge-outline" style={{ color: "rgba(255,255,255,0.8)", borderColor: "rgba(255,255,255,0.24)" }}>{o.gbaLabel}</span>
+            {o.gbaLabel && (
+              <span className="badge badge-outline" style={{ color: "rgba(255,255,255,0.8)", borderColor: "rgba(255,255,255,0.24)" }}>{o.gbaLabel}</span>
+            )}
           </div>
           <div className="cta">
             <a className="btn btn-primary btn-lg" onClick={() => navSection("obj-lead")}>Оставить заявку</a>
