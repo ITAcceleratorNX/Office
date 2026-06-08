@@ -10,6 +10,7 @@ import {
   ObjectCardMain, ObjectCardCatalog, SimilarCard, PartnersStrip,
 } from "../components/ui-core.jsx";
 import { MapPlaceholder, LeadForm } from "../components/ui-form-map.jsx";
+import { MapLeaflet } from "../components/MapLeaflet.jsx";
 
 const T = TMK;
 
@@ -94,7 +95,7 @@ function Home() {
             <span className="eyebrow">{Ic.pin({ s: 14 })} На карте</span>
             <h2 style={{ marginTop: 16 }}>Все объекты на карте Алматы</h2>
           </div>
-          <MapPlaceholder objects={T.objects} height={520} />
+          <MapLeaflet objects={T.objects} height={520} />
         </div>
       </section>
 
