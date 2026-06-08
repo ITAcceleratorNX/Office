@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+
+.env
+.env.*
+
+.image-slots.state.json
+.thumbnail/
+uploads/
+
+# Legacy prototype (pre-Vite)
+image-slot.js
+hero-*.html

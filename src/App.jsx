@@ -1,0 +1,59 @@
+import { useEffect } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
+import { setNavigate } from "./navigation";
+import { Header, Footer, WhatsAppFloat } from "./components/ui-core";
+import { Home, Catalog, ObjectPage, ThankYou } from "./pages/pages";
+
+function NavigateBridge() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
+  return null;
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+function ObjectRoute() {
+  const { slug } = useParams();
+  return <ObjectPage slug={slug} />;
+}
+
+function AppShell({ children, overlay = true }) {
+  return (
+    <>
+      <Header overlay={overlay} />
+      {children}
+      <Footer />
+      <WhatsAppFloat />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <NavigateBridge />
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<AppShell><Home /></AppShell>} />
+        <Route path="/catalog" element={<AppShell overlay={false}><Catalog /></AppShell>} />
+        <Route path="/objects/:slug" element={<AppShell overlay={false}><ObjectRoute /></AppShell>} />
+        <Route path="/thank-you" element={<ThankYou />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
