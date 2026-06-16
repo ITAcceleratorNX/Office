@@ -345,6 +345,8 @@ select.control { cursor: pointer; appearance: none; background-image: url("data:
 .lead-object-chip { display:inline-flex; align-items:center; gap: 9px; background: var(--petrol-tint); color: var(--petrol); border-radius: var(--r-sm); padding: 11px 15px; font-weight: 700; font-size: 14px; margin-bottom: 18px; }
 .lead-submit-row { display:flex; align-items:center; gap: 16px; margin-top: 22px; flex-wrap: wrap; }
 .lead-note { color: var(--gray-soft); font-size: 12.5px; max-width: 320px; }
+.lead-form-error { color: #C0341B; font-size: 14px; font-weight: 600; margin-top: 14px; }
+.btn:disabled { opacity: 0.72; cursor: not-allowed; }
 
 /* split form section (two-col: info + form) */
 .form-split { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: clamp(32px,5vw,64px); align-items: center; }

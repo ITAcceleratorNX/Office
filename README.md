@@ -30,8 +30,17 @@ npm run preview
 3. Vercel автоматически определит Vite:
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
+4. В **Settings → Environment Variables** добавьте SMTP-переменные из `.env.example`
 
-Файл `vercel.json` уже настроен для SPA-роутинга.
+Файл `vercel.json` уже настроен для SPA-роутинга. API-роут `/api/send-lead` обрабатывается serverless-функцией автоматически.
+
+## Отправка заявок на email
+
+1. Скопируйте `.env.example` в `.env.local`
+2. Укажите SMTP-доступ почтового ящика (лучше отдельный app password, не основной пароль)
+3. Запустите `npm run dev` и отправьте тестовую заявку
+
+Заявки уходят на `LEAD_TO_EMAIL` (по умолчанию `Yerlepessov.t@tmk-limited.com`).
 
 ## Структура
 
@@ -44,5 +53,5 @@ src/components/  — UI-компоненты
 
 ## Примечания
 
-- Форма заявки сохраняет данные в `sessionStorage` и показывает страницу «Спасибо». Для продакшена подключите отправку на email или CRM.
+- Форма заявки отправляет данные на email через `/api/send-lead` (SMTP). Настройка — в `.env.example`.
 - Карта — демо-заглушка; 2GIS подключается отдельно по API-ключу.

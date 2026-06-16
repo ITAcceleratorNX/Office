@@ -125,6 +125,8 @@ function phoneBodyDigits(phone) {
 export function LeadForm({ sourcePage, objectTitle, compact }) {
   const [v, setV] = useState({ name: "", phone: "+7", company: "", area: "", format: "", comment: "" });
   const [err, setErr] = useState({});
+  const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const set = (k) => (e) => setV((s) => ({ ...s, [k]: e.target.value }));
 
   function onPhoneChange(e) {
@@ -147,13 +149,32 @@ export function LeadForm({ sourcePage, objectTitle, compact }) {
     return Object.keys(e).length === 0;
   }
 
-  function submit(ev) {
+  async function submit(ev) {
     ev.preventDefault();
+    setSubmitError("");
     if (!validate()) return;
+
+    setSending(true);
     try {
-      sessionStorage.setItem("tmk_lead", JSON.stringify({ ...v, sourcePage, objectTitle, ts: Date.now() }));
-    } catch (e) { /* ignore */ }
-    go("/thank-you");
+      const res = await fetch("/api/send-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...v, sourcePage, objectTitle }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.fields) setErr((prev) => ({ ...prev, ...data.fields }));
+        throw new Error(data.error || "Не удалось отправить заявку");
+      }
+      try {
+        sessionStorage.setItem("tmk_lead", JSON.stringify({ ...v, sourcePage, objectTitle, ts: Date.now() }));
+      } catch (e) { /* ignore */ }
+      go("/thank-you");
+    } catch (e) {
+      setSubmitError(e.message || "Не удалось отправить заявку. Попробуйте позже или напишите в WhatsApp.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -203,9 +224,12 @@ export function LeadForm({ sourcePage, objectTitle, compact }) {
         </div>
       </div>
       <div className="lead-submit-row">
-        <button type="submit" className="btn btn-primary btn-lg">Оставить заявку {Ic.arrow({ s: 16 })}</button>
+        <button type="submit" className="btn btn-primary btn-lg" disabled={sending}>
+          {sending ? "Отправляем…" : <>Оставить заявку {Ic.arrow({ s: 16 })}</>}
+        </button>
         {!compact && <span className="lead-note">Нажимая кнопку, вы соглашаетесь на обработку данных. Цены не публикуются — условия уточняет менеджер.</span>}
       </div>
+      {submitError && <p className="lead-form-error">{submitError}</p>}
     </form>
   );
 }
