@@ -19,6 +19,10 @@ export function smoothScrollTo(id) {
 }
 
 export function navSection(id) {
+  if (document.getElementById(id)) {
+    smoothScrollTo(id);
+    return;
+  }
   const path = window.location.pathname;
   if (path !== "/" && path !== "") {
     go("/");
