@@ -27,14 +27,9 @@ function SectionHead({ eyebrow, title, text, dark, center, max }) {
 }
 
 /* ======================= HOME ======================= */
-const MAP_HOME_SLUGS = [
-  "green-tower", "triumph", "koktem-towers", "koktem-grand", "venus",
-  "dial-plaza", "teniz-towers", "time-square", "nurly-tau",
-];
-
 function Home() {
-  const featured = ["green-tower", "dial-plaza", "nurly-tau", "venus", "koktem-grand", "teniz-towers"].map(T.bySlug);
-  const mapObjects = MAP_HOME_SLUGS.map(T.bySlug).filter(Boolean);
+  const featured = ["esentai-tower", "abylai-khan-plaza", "capital-tower", "ken-dala", "almaty-plaza", "bnc-plaza"].map(T.bySlug);
+  const mapObjects = T.objects.filter((o) => o.coords != null);
   const formats = [
     { ic: Ic.briefcase, t: "Офис", d: "Классический офис в бизнес-центре под аренду: выбираете площадь и этаж под структуру команды." },
     { ic: Ic.sparkle, t: "Сервисный офис", d: "Готовое рабочее пространство с мебелью, инфраструктурой и обслуживанием — можно заехать быстрее." },
@@ -64,15 +59,15 @@ function Home() {
               <div className="stat-row">
                 <div className="s"><b>350 000+</b><span>м² в управлении</span></div>
                 <div className="stat-divider"></div>
-                <div className="s"><b>10</b><span>офисных объектов</span></div>
+                <div className="s"><b>15</b><span>офисных объектов</span></div>
                 <div className="stat-divider"></div>
                 <div className="s"><b>A–B</b><span>классы зданий</span></div>
               </div>
             </div>
             <div className="hero-card">
-              <span className="chip">Класс A · BREEAM</span>
-              <PhotoSlot ph="Green Tower — обложка" src={T.bySlug("green-tower").photo} alt="БЦ Green Tower" />
-              <div className="tagline"><b>БЦ Green Tower</b><span>Медеуский район · Достык 192/2 · от 900 м²/этаж</span></div>
+              <span className="chip">Класс A</span>
+              <PhotoSlot ph="Esentai Tower — обложка" src={T.bySlug("esentai-tower").photo} alt="Esentai Tower" />
+              <div className="tagline"><b>Esentai Tower</b><span>Бостандыкский район · Аль-Фараби 77/7 · от 1 413 м²/этаж</span></div>
             </div>
           </div>
         </div>
@@ -300,7 +295,7 @@ function Catalog() {
             <div className="row">
               <div className="ffield span2">
                 <label>Название бизнес-центра</label>
-                <div className="search-wrap">{Ic.search({ s: 18 })}<input className="control" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по названию БЦ" /></div>
+                <div className="search-wrap">{Ic.search({ s: 18 })}<input className="control" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по названию" /></div>
               </div>
               <div className="ffield">
                 <label>Район</label>
@@ -422,7 +417,9 @@ function ObjectPage({ slug }) {
             <ClassBadge o={o} dark />
             {o.classNote && <span className="badge badge-copper">{o.classNote}</span>}
             <StatusBadge status={o.status} />
-            <span className="badge badge-outline" style={{ color: "rgba(255,255,255,0.8)", borderColor: "rgba(255,255,255,0.24)" }}>{o.floors} этажей</span>
+            {o.floors != null && (
+              <span className="badge badge-outline" style={{ color: "rgba(255,255,255,0.8)", borderColor: "rgba(255,255,255,0.24)" }}>{o.floors} этажей</span>
+            )}
             {o.gbaLabel && (
               <span className="badge badge-outline" style={{ color: "rgba(255,255,255,0.8)", borderColor: "rgba(255,255,255,0.24)" }}>{o.gbaLabel}</span>
             )}
@@ -481,7 +478,15 @@ function ObjectPage({ slug }) {
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
           <SectionHead eyebrow={<Fragment>{Ic.pin({ s: 14 })} На карте</Fragment>} title="Расположение объекта" text={o.address + ", Алматы · " + o.district + " район"} />
-          <MapPlaceholder objects={[o]} height={420} single />
+          {o.coords != null ? (
+            <MapLeaflet objects={[o]} single />
+          ) : (
+            <div className="map-ph" style={{ padding: "48px 28px", textAlign: "center", background: "var(--band-tint, #f4f6f8)" }}>
+              <p style={{ margin: 0, fontSize: 16, color: "var(--gray)", lineHeight: 1.5 }}>
+                {Ic.pin({ s: 17 })} {o.address}, Алматы · {o.district} район
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

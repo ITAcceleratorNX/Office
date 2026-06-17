@@ -34,16 +34,18 @@ function mapPadding(mobile) {
   return mobile ? [36, 20] : [48, 48];
 }
 
-function buildPopup(o) {
+function buildPopup(o, { withButton = true } = {}) {
   const wrap = L.DomUtil.create("div", "map-leaflet-popup");
-  wrap.innerHTML = `<strong>${o.title}</strong><p>${o.district} · ${o.address}</p>`;
-  const btn = L.DomUtil.create("button", "map-leaflet-popup-btn", wrap);
-  btn.type = "button";
-  btn.textContent = "Подробнее";
-  L.DomEvent.on(btn, "click", (ev) => {
-    L.DomEvent.stopPropagation(ev);
-    go("/objects/" + o.slug);
-  });
+  wrap.innerHTML = `<strong>${o.title}</strong><p>${o.district}</p><p>${o.address}</p>`;
+  if (withButton) {
+    const btn = L.DomUtil.create("button", "map-leaflet-popup-btn", wrap);
+    btn.type = "button";
+    btn.textContent = "Подробнее";
+    L.DomEvent.on(btn, "click", (ev) => {
+      L.DomEvent.stopPropagation(ev);
+      go("/objects/" + o.slug);
+    });
+  }
   return wrap;
 }
 
@@ -59,7 +61,7 @@ function setMapInteraction(map, enabled) {
   }
 }
 
-export function MapLeaflet({ objects }) {
+export function MapLeaflet({ objects, single = false }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const mobile = useMatchMedia(MOBILE_MQ);
@@ -73,7 +75,7 @@ export function MapLeaflet({ objects }) {
     const el = containerRef.current;
     if (!el) return;
 
-    const list = objects.filter((o) => o.coords);
+    const list = objects.filter((o) => o.coords != null);
     const map = L.map(el, {
       scrollWheelZoom: false,
       zoomControl: !mobile,
@@ -93,7 +95,7 @@ export function MapLeaflet({ objects }) {
       bounds.extend(latlng);
       L.marker(latlng)
         .addTo(map)
-        .bindPopup(buildPopup(o), {
+        .bindPopup(buildPopup(o, { withButton: !single }), {
           maxWidth: mobile ? 260 : 320,
           autoPanPadding: mobile ? [24, 24] : [48, 48],
         });
@@ -106,7 +108,8 @@ export function MapLeaflet({ objects }) {
           maxZoom: mobile ? 12 : 13,
         });
       } else if (list.length === 1) {
-        map.setView([list[0].coords.lat, list[0].coords.lng], mobile ? 14 : 15);
+        const zoom = single ? (mobile ? 15 : 16) : (mobile ? 14 : 15);
+        map.setView([list[0].coords.lat, list[0].coords.lng], zoom);
       }
     };
     fit();
@@ -123,7 +126,7 @@ export function MapLeaflet({ objects }) {
       map.remove();
       mapRef.current = null;
     };
-  }, [objects, mobile]);
+  }, [objects, mobile, single]);
 
   useEffect(() => {
     const map = mapRef.current;
