@@ -9,7 +9,6 @@ import { buildExtraObjects, finalizeCatalog } from "./catalog-extra.js";
     return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
   }
 
-  // Map bounding box for the stylized placeholder map (approx central Almaty)
   const MAP_BOUNDS = { latMin: 43.205, latMax: 43.262, lngMin: 76.900, lngMax: 76.968 };
 
   // Districts (only those that actually exist in the data)
