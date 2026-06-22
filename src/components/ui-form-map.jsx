@@ -55,7 +55,7 @@ function MapPin({ o, active, onClick }) {
   return (
     <div className={"map-pin " + (active ? "active" : "")} style={{ left: x + "%", top: y + "%" }}
       onClick={(e) => { e.stopPropagation(); onClick && onClick(o); }}>
-      <span className="lbl">{o.title.replace("БЦ ", "")}</span>
+      <span className="lbl">{o.title}</span>
       <svg className="dot" viewBox="0 0 30 30" fill="none">
         <path d="M15 2C9.5 2 5 6.4 5 11.9c0 6.6 8.3 14.4 9.3 15.3.4.4 1 .4 1.4 0C16.7 26.3 25 18.5 25 11.9 25 6.4 20.5 2 15 2Z"
           fill={active ? "#B73F0D" : "#0E2E4D"} stroke="#fff" strokeWidth="1.6" />

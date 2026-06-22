@@ -182,7 +182,7 @@ export function ObjectCardMain({ o }) {
         <div className="addr">{o.address}</div>
         <div className="specs">
           {o.gbaLabel && <div className="sp"><b>{o.gbaLabel}</b><span>общая площадь</span></div>}
-          <div className="sp"><b>{o.floors}</b><span>этажей</span></div>
+          {o.floors != null && <div className="sp"><b>{o.floors}</b><span>этажей</span></div>}
         </div>
         <div className="actions">
           <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее</a>
@@ -217,10 +217,12 @@ export function ObjectCardCatalog({ o }) {
             <div className="sp">
               {o.gfaLabel ? <><b>{o.gfaLabel.replace("/этаж", "")}</b><span>этаж</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
             </div>
+            {o.floors != null && (
             <div className="sp">
               <b>{o.floors}</b>
               <span>этажей</span>
             </div>
+            )}
           </div>
           <div className="actions">
             <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее {Ic.arrow({ s: 15 })}</a>
