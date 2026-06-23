@@ -4,7 +4,9 @@ import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { go } from "../navigation.js";
+import { openObject } from "../navigation.js";
+import { useCurrentPath } from "../hooks/useCurrentPath.js";
+import { useMatchMedia } from "../hooks/useMatchMedia.js";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -16,25 +18,11 @@ L.Icon.Default.mergeOptions({
 const ALMATY = [43.238, 76.945];
 const MOBILE_MQ = "(max-width: 660px)";
 
-function useMatchMedia(query) {
-  const [matches, setMatches] = useState(
-    () => typeof window !== "undefined" && window.matchMedia(query).matches
-  );
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const onChange = () => setMatches(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [query]);
-  return matches;
-}
-
 function mapPadding(mobile) {
   return mobile ? [36, 20] : [48, 48];
 }
 
-function buildPopup(o, { withButton = true } = {}) {
+function buildPopup(o, { withButton = true, fromRef } = {}) {
   const wrap = L.DomUtil.create("div", "map-leaflet-popup");
   wrap.innerHTML = `<strong>${o.title}</strong><p>${o.district}</p><p>${o.address}</p>`;
   if (withButton) {
@@ -43,7 +31,7 @@ function buildPopup(o, { withButton = true } = {}) {
     btn.textContent = "Подробнее";
     L.DomEvent.on(btn, "click", (ev) => {
       L.DomEvent.stopPropagation(ev);
-      go("/objects/" + o.slug);
+      openObject(o.slug, fromRef?.current);
     });
   }
   return wrap;
@@ -66,6 +54,9 @@ export function MapLeaflet({ objects, single = false }) {
   const mapRef = useRef(null);
   const mobile = useMatchMedia(MOBILE_MQ);
   const [interact, setInteract] = useState(false);
+  const from = useCurrentPath();
+  const fromRef = useRef(from);
+  fromRef.current = from;
 
   useEffect(() => {
     setInteract(false);
@@ -95,7 +86,7 @@ export function MapLeaflet({ objects, single = false }) {
       bounds.extend(latlng);
       L.marker(latlng)
         .addTo(map)
-        .bindPopup(buildPopup(o, { withButton: !single }), {
+        .bindPopup(buildPopup(o, { withButton: !single, fromRef }), {
           maxWidth: mobile ? 260 : 320,
           autoPanPadding: mobile ? [24, 24] : [48, 48],
         });

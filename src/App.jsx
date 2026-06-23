@@ -5,25 +5,17 @@ import {
   Route,
   useNavigate,
   useParams,
-  useLocation,
 } from "react-router-dom";
 import { setNavigate } from "./navigation";
+import { ScrollRestoration } from "./ScrollRestoration.jsx";
 import { Header, Footer, WhatsAppFloat } from "./components/ui-core";
-import { Home, Catalog, ObjectPage, ThankYou } from "./pages/pages";
+import { Home, Catalog, ObjectPage, ThankYou } from "./pages";
 
 function NavigateBridge() {
   const navigate = useNavigate();
   useEffect(() => {
     setNavigate(navigate);
   }, [navigate]);
-  return null;
-}
-
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
   return null;
 }
 
@@ -47,7 +39,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <NavigateBridge />
-      <ScrollToTop />
+      <ScrollRestoration />
       <Routes>
         <Route path="/" element={<AppShell><Home /></AppShell>} />
         <Route path="/catalog" element={<AppShell overlay={false}><Catalog /></AppShell>} />

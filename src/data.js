@@ -1,3 +1,8 @@
+import { getOfficePhotos } from "./lib/office-photos.js";
+import { formatPriceLabel, resolvePriceFrom } from "./lib/pricing.js";
+
+const OFFICE_FORMATS = ["Офис", "Сервисный офис", "Офис под ключ", "Пока не знаю"];
+
 const WA_NUMBER = "77009737138";
 const WA_TEXT = {
   general: "Здравствуйте! Интересует аренда коммерческой недвижимости. Подскажите, пожалуйста, какие офисы доступны?",
@@ -47,11 +52,18 @@ function liftsLabel(yes) {
   return yes ? "В наличии" : "Нет";
 }
 
+function buildGallery(slug, facade) {
+  const interiors = getOfficePhotos(slug) ?? [];
+  if (facade && interiors.length) return [facade, ...interiors];
+  if (interiors.length) return interiors;
+  return facade ? [facade] : [];
+}
+
 function makeObj(row) {
   const {
     slug, title, district, address, buildingClass, gba, gbaLabel, gfa, floors,
     lifts, ventilation, conditioning, parking, infrastructure, planning,
-    classNote = "", similar = [], status = "active", coords = null,
+    classNote = "", similar = [], status = "active", coords = null, priceFrom = null,
   } = row;
 
   const classKeys = buildingClass === "A" ? ["A"] : buildingClass === "B+" ? ["B+"] : ["B"];
@@ -78,6 +90,10 @@ function makeObj(row) {
     (gfaLabel ? `, этаж ${fmtNum(gfa)} м²` : "") +
     ". " + plan + ", охрана и доступ 24/7.";
 
+  const facade = row.photo ?? photoUrl(slug);
+  const gallery = buildGallery(slug, facade);
+  const price = resolvePriceFrom(buildingClass, priceFrom);
+
   return {
     slug,
     title,
@@ -92,7 +108,11 @@ function makeObj(row) {
     floors: floors ?? null,
     parking,
     status,
-    photo: row.photo ?? photoUrl(slug),
+    gallery,
+    photo: facade,
+    cover: facade,
+    priceFrom: price,
+    priceLabel: formatPriceLabel(price),
     coords,
     shortDescription,
     similar,
@@ -229,6 +249,7 @@ const RAW_OBJECTS = [
     slug: "green-tower", title: "Green Tower", district: "Медеуский", address: "Достык 192/2", coords: { lat: 43.231631, lng: 76.960461 },
     photo: "/assets/objects/green-tower.jpg",
     buildingClass: "A", gba: 11000, gbaLabel: "11 000 м²", gfa: 900, floors: 12, lifts: true,
+    classNote: "BREEAM", priceFrom: 9200,
     ventilation: "Приточно-вытяжная", conditioning: "Центральное",
     parking: "120 мест", infrastructure: ["Кофейня","Магазины","Аптеки","ТРЦ"],
     similar: ["triumph","koktem-towers","dial-plaza"],
@@ -436,6 +457,7 @@ function similarFor(o) {
 
 export default {
   objects,
+  officeFormats: OFFICE_FORMATS,
   districts,
   classes,
   areaRanges,

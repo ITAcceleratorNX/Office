@@ -1,21 +1,8 @@
 import { useState, useEffect, useRef, Children } from "react";
 import { Ic } from "./ui-core.jsx";
+import { useMatchMedia } from "../hooks/useMatchMedia.js";
 
 const MOBILE_MQ = "(max-width: 660px)";
-
-function useMatchMedia(query) {
-  const [matches, setMatches] = useState(
-    () => typeof window !== "undefined" && window.matchMedia(query).matches
-  );
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const onChange = () => setMatches(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [query]);
-  return matches;
-}
 
 export function CardsCarousel({ children, className = "", resetKey }) {
   const mobile = useMatchMedia(MOBILE_MQ);

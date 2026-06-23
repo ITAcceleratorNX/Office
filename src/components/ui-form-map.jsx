@@ -1,9 +1,10 @@
 /* ============================================================
    TMK — Map placeholder (2GIS stub) + Lead form
    ============================================================ */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TMK from "../data.js";
-import { go } from "../navigation.js";
+import { go, openObject } from "../navigation.js";
+import { useCurrentPath } from "../hooks/useCurrentPath.js";
 import { Ic, PhotoSlot } from "./ui-core.jsx";
 
 const MB = TMK.MAP_BOUNDS;
@@ -65,7 +66,7 @@ function MapPin({ o, active, onClick }) {
   );
 }
 
-function MapPopup({ o, onClose }) {
+function MapPopup({ o, onClose, from }) {
   const { x, y } = coordToXY(o.coords);
   return (
     <div className="map-popup" style={{ left: x + "%", top: y + "%" }} onClick={(e) => e.stopPropagation()}>
@@ -75,7 +76,7 @@ function MapPopup({ o, onClose }) {
         <div className="loc">{o.district} район</div>
         <h4>{o.title}</h4>
         <div className="addr">{o.address}</div>
-        <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее {Ic.arrow({ s: 14 })}</a>
+        <a className="btn btn-dark btn-sm" onClick={() => openObject(o.slug, from)}>Подробнее {Ic.arrow({ s: 14 })}</a>
       </div>
       <span className="arrow"></span>
     </div>
@@ -84,6 +85,7 @@ function MapPopup({ o, onClose }) {
 
 export function MapPlaceholder({ objects, height = 480, single = false }) {
   const [active, setActive] = useState(null);
+  const from = useCurrentPath();
   const list = single ? objects.map((o) => ({ ...o, __single: true })) : objects;
   return (
     <div className="map-ph" style={{ height }} onClick={() => setActive(null)}>
@@ -97,12 +99,12 @@ export function MapPlaceholder({ objects, height = 480, single = false }) {
         <MapPin key={o.slug} o={o} active={active && active.slug === o.slug}
           onClick={single ? null : (obj) => setActive(obj)} />
       ))}
-      {active && !single && <MapPopup o={active} onClose={() => setActive(null)} />}
+      {active && !single && <MapPopup o={active} onClose={() => setActive(null)} from={from} />}
     </div>
   );
 }
 
-const FORMATS = ["Офис", "Сервисный офис", "Офис под ключ", "Пока не знаю"];
+const FORMATS = TMK.officeFormats;
 
 function formatPhoneInput(raw) {
   let digits = raw.replace(/\D/g, "");
@@ -122,12 +124,24 @@ function phoneBodyDigits(phone) {
   return digits.startsWith("7") ? digits.slice(1) : digits;
 }
 
-export function LeadForm({ sourcePage, objectTitle, compact }) {
-  const [v, setV] = useState({ name: "", phone: "+7", company: "", area: "", format: "", comment: "" });
+export function LeadForm({ sourcePage, objectTitle, compact, defaultFormat = "" }) {
+  const [v, setV] = useState({
+    name: "",
+    phone: "+7",
+    company: "",
+    area: "",
+    budget: "",
+    format: defaultFormat,
+    comment: "",
+  });
   const [err, setErr] = useState({});
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const set = (k) => (e) => setV((s) => ({ ...s, [k]: e.target.value }));
+
+  useEffect(() => {
+    if (defaultFormat) setV((s) => ({ ...s, format: defaultFormat }));
+  }, [defaultFormat]);
 
   function onPhoneChange(e) {
     setV((s) => ({ ...s, phone: formatPhoneInput(e.target.value) }));
@@ -211,6 +225,10 @@ export function LeadForm({ sourcePage, objectTitle, compact }) {
           <label>Желаемая площадь</label>
           <input className="control" value={v.area} onChange={set("area")} placeholder="Например, 200–400 м²" />
         </div>
+        <div className="field">
+          <label>Бюджет</label>
+          <input className="control" value={v.budget} onChange={set("budget")} placeholder="Например, до 500 000 тг/мес" />
+        </div>
         <div className="field full">
           <label>Формат офиса</label>
           <select className="control" value={v.format} onChange={set("format")}>
@@ -227,7 +245,7 @@ export function LeadForm({ sourcePage, objectTitle, compact }) {
         <button type="submit" className="btn btn-primary btn-lg" disabled={sending}>
           {sending ? "Отправляем…" : <>Оставить заявку {Ic.arrow({ s: 16 })}</>}
         </button>
-        {!compact && <span className="lead-note">Нажимая кнопку, вы соглашаетесь на обработку данных. Цены не публикуются — условия уточняет менеджер.</span>}
+        {!compact && <span className="lead-note">Нажимая кнопку, вы соглашаетесь на обработку данных. На карточках указана ориентировочная ставка — точные условия уточняет менеджер.</span>}
       </div>
       {submitError && <p className="lead-form-error">{submitError}</p>}
     </form>

@@ -4,6 +4,7 @@
 import { useState, useEffect, Fragment } from "react";
 import TMK from "../data.js";
 import { go, navSection } from "../navigation.js";
+import { useOpenObject } from "../hooks/useOpenObject.js";
 
 /* ---------------- Icons ---------------- */
 export const Ic = {
@@ -166,7 +167,36 @@ export function WhatsAppFloat() {
   );
 }
 
+function ObjectCardFoot({ o, open, detailed }) {
+  return (
+    <div className="obj-card-foot">
+      <div className="obj-card-metrics">
+        <div className="specs">
+          <div className="sp">
+            {o.gbaLabel ? <><b>{o.gbaLabel}</b><span>{detailed ? "общая" : "общая площадь"}</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
+          </div>
+          {detailed && o.gfaLabel ? (
+            <div className="sp">
+              <b>{o.gfaLabel.replace(" м²/этаж", "")}</b><span>этаж</span>
+            </div>
+          ) : null}
+          {o.floors != null && (
+            <div className="sp">
+              <b>{o.floors}</b><span>этажей</span>
+            </div>
+          )}
+        </div>
+        {o.priceLabel && <div className="obj-card-price">{o.priceLabel}</div>}
+      </div>
+      <button type="button" className="obj-card-more" onClick={() => open(o.slug)}>
+        Подробнее {Ic.arrow({ s: 14 })}
+      </button>
+    </div>
+  );
+}
+
 export function ObjectCardMain({ o }) {
+  const open = useOpenObject();
   return (
     <article className="obj-card">
       <div className="media">
@@ -180,20 +210,14 @@ export function ObjectCardMain({ o }) {
         <div className="loc">{Ic.pin({ s: 14 })} {o.district} район</div>
         <h3>{o.title}</h3>
         <div className="addr">{o.address}</div>
-        <div className="specs">
-          {o.gbaLabel && <div className="sp"><b>{o.gbaLabel}</b><span>общая площадь</span></div>}
-          {o.floors != null && <div className="sp"><b>{o.floors}</b><span>этажей</span></div>}
-        </div>
-        <div className="actions">
-          <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее</a>
-          <a className="btn btn-wa btn-sm" href={WA(WT.card(o.title))} target="_blank" rel="noopener">{Ic.wa({ s: 16 })} WhatsApp</a>
-        </div>
+        <ObjectCardFoot o={o} open={open} detailed={false} />
       </div>
     </article>
   );
 }
 
 export function ObjectCardCatalog({ o }) {
+  const open = useOpenObject();
   return (
     <article className="obj-card catalog-card">
       <div className="media">
@@ -209,34 +233,16 @@ export function ObjectCardCatalog({ o }) {
           <h3>{o.title}</h3>
           <p className="desc">{o.shortDescription}</p>
         </div>
-        <div className="obj-card-foot">
-          <div className="specs">
-            <div className="sp">
-              {o.gbaLabel ? <><b>{o.gbaLabel}</b><span>общая</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
-            </div>
-            <div className="sp">
-              {o.gfaLabel ? <><b>{o.gfaLabel.replace("/этаж", "")}</b><span>этаж</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
-            </div>
-            {o.floors != null && (
-            <div className="sp">
-              <b>{o.floors}</b>
-              <span>этажей</span>
-            </div>
-            )}
-          </div>
-          <div className="actions">
-            <a className="btn btn-dark btn-sm" onClick={() => go("/objects/" + o.slug)}>Подробнее {Ic.arrow({ s: 15 })}</a>
-            <a className="btn btn-wa btn-sm" href={WA(WT.card(o.title))} target="_blank" rel="noopener">{Ic.wa({ s: 16 })}</a>
-          </div>
-        </div>
+        <ObjectCardFoot o={o} open={open} detailed />
       </div>
     </article>
   );
 }
 
 export function SimilarCard({ o }) {
+  const open = useOpenObject();
   return (
-    <article className="sim-card" onClick={() => go("/objects/" + o.slug)}>
+    <article className="sim-card" onClick={() => open(o.slug)}>
       <div className="media"><PhotoSlot ph={o.title} src={o.photo} alt={o.title} /></div>
       <div className="body">
         <div className="loc">{Ic.pin({ s: 13 })} {o.district} район</div>
@@ -247,22 +253,22 @@ export function SimilarCard({ o }) {
 }
 
 const PARTNERS = [
-  ["Qatar Airways", "/assets/partners/qatar-airways.png"],
-  ["Coca-Cola", "/assets/partners/coca-cola.png"],
-  ["Tele2", "/assets/partners/tele2.png"],
-  ["Kcell", "/assets/partners/kcell.png"],
-  ["Hitachi", "/assets/partners/hitachi.png"],
-  ["Coventry University", "/assets/partners/coventry.png"],
-  ["Yandex", "/assets/partners/yandex.png"],
-  ["Freedom Holding", "/assets/partners/freedom.png"],
-  ["Galanz Bottlers", "/assets/partners/galanz.png"],
+  "Qatar Airways",
+  "Coca-Cola",
+  "Tele2",
+  "Kcell",
+  "Hitachi",
+  "Coventry University",
+  "Yandex",
+  "Freedom Holding",
+  "Galanz Bottlers",
 ];
 
 export function PartnersStrip() {
   return (
     <div className="partners-grid">
-      {PARTNERS.map(([name, src]) => (
-        <div className="partner-tile" key={name}><img src={src} alt={name} loading="lazy" /></div>
+      {PARTNERS.map((name) => (
+        <div className="partner-pill" key={name}>{name}</div>
       ))}
     </div>
   );
