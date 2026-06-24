@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Ic } from "./ui-core.jsx";
+import { useI18n } from "../i18n/I18nContext.jsx";
 
 function CarouselImage({ src, alt, eager }) {
   return (
@@ -14,6 +15,7 @@ function CarouselImage({ src, alt, eager }) {
 }
 
 export function PhotoCarousel({ title, photos = [], fallback }) {
+  const { t } = useI18n();
   const slides = photos.length > 0 ? photos : fallback ? [fallback] : [];
   const [index, setIndex] = useState(0);
   const [slideWidth, setSlideWidth] = useState(0);
@@ -71,11 +73,11 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
     <section className="section photo-carousel-section">
       <div className="container">
         <div className="photo-carousel-head">
-          <span className="eyebrow">{hasGallery ? "Интерьеры" : "Фото объекта"}</span>
-          <h2 className="photo-carousel-title">Офисные пространства</h2>
+          <span className="eyebrow">{hasGallery ? t("photo.eyebrowGallery") : t("photo.eyebrowPhoto")}</span>
+          <h2 className="photo-carousel-title">{t("photo.title")}</h2>
           {hasGallery && (
             <p className="photo-carousel-desc">
-              Реальные фото {title} — листайте карусель или выберите миниатюру
+              {t("photo.desc", { title })}
             </p>
           )}
         </div>
@@ -108,7 +110,7 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
                 >
                   <CarouselImage
                     src={src}
-                    alt={`${title} — фото ${i + 1}`}
+                    alt={t("photo.photoAlt", { title, n: i + 1 })}
                     eager={i === index || i === index + 1}
                   />
                 </div>
@@ -122,7 +124,7 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
                   className="photo-carousel-arrow photo-carousel-arrow--prev"
                   onClick={goPrev}
                   disabled={index === 0}
-                  aria-label="Предыдущее фото"
+                  aria-label={t("carousel.prevPhoto")}
                 >
                   <span className="photo-carousel-arrow-icon photo-carousel-arrow-icon--prev">
                     {Ic.arrow({ s: 20 })}
@@ -133,7 +135,7 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
                   className="photo-carousel-arrow photo-carousel-arrow--next"
                   onClick={goNext}
                   disabled={index === last}
-                  aria-label="Следующее фото"
+                  aria-label={t("carousel.nextPhoto")}
                 >
                   <span className="photo-carousel-arrow-icon">{Ic.arrow({ s: 20 })}</span>
                 </button>
@@ -146,28 +148,28 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
 
           {hasMany && (
             <>
-              <div className="photo-carousel-dots" role="tablist" aria-label="Номер фото">
+              <div className="photo-carousel-dots" role="tablist" aria-label={t("photo.photoN", { n: index + 1 })}>
                 {slides.map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     role="tab"
                     aria-selected={i === index}
-                    aria-label={`Фото ${i + 1}`}
+                    aria-label={t("photo.photoN", { n: i + 1 })}
                     className={"photo-carousel-dot" + (i === index ? " is-active" : "")}
                     onClick={() => setIndex(i)}
                   />
                 ))}
               </div>
 
-              <div className="photo-carousel-thumbs" ref={thumbsRef} role="tablist" aria-label="Миниатюры">
+              <div className="photo-carousel-thumbs" ref={thumbsRef} role="tablist" aria-label={t("photo.thumbsLabel")}>
                 {slides.map((src, i) => (
                   <button
                     type="button"
                     key={`thumb-${src}-${i}`}
                     role="tab"
                     aria-selected={i === index}
-                    aria-label={`Фото ${i + 1}`}
+                    aria-label={t("photo.photoN", { n: i + 1 })}
                     className={"photo-carousel-thumb" + (i === index ? " is-active" : "")}
                     onClick={() => setIndex(i)}
                   >

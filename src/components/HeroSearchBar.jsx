@@ -1,9 +1,12 @@
 import { useState } from "react";
-import TMK from "../data.js";
 import { go } from "../navigation.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
+import { useTMK } from "../hooks/useTMK.js";
 import { Ic } from "./ui-core.jsx";
 
 export function HeroSearchBar() {
+  const { t } = useI18n();
+  const { districts, areaRanges, officeFormats } = useTMK();
   const [district, setDistrict] = useState("");
   const [area, setArea] = useState("");
   const [format, setFormat] = useState("");
@@ -23,29 +26,29 @@ export function HeroSearchBar() {
       <div className="hero-search-panel">
         <div className="hero-search-fields">
           <label className="hero-search-field">
-            <span className="hero-search-label">Район</span>
+            <span className="hero-search-label">{t("heroSearch.district")}</span>
             <select className="hero-search-control" value={district} onChange={(e) => setDistrict(e.target.value)}>
-              <option value="">Любой</option>
-              {TMK.districts.map((d) => <option key={d} value={d}>{d}</option>)}
+              <option value="">{t("common.any")}</option>
+              {districts.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
           </label>
           <label className="hero-search-field">
-            <span className="hero-search-label">Площадь</span>
+            <span className="hero-search-label">{t("heroSearch.area")}</span>
             <select className="hero-search-control" value={area} onChange={(e) => setArea(e.target.value)}>
-              <option value="">Любой</option>
-              {TMK.areaRanges.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+              <option value="">{t("common.any")}</option>
+              {areaRanges.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
             </select>
           </label>
           <label className="hero-search-field">
-            <span className="hero-search-label">Формат</span>
+            <span className="hero-search-label">{t("heroSearch.format")}</span>
             <select className="hero-search-control" value={format} onChange={(e) => setFormat(e.target.value)}>
-              <option value="">Любой</option>
-              {TMK.officeFormats.map((f) => <option key={f} value={f}>{f}</option>)}
+              <option value="">{t("common.any")}</option>
+              {officeFormats.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
             </select>
           </label>
         </div>
         <button type="submit" className="btn btn-primary hero-search-btn">
-          Подобрать офис {Ic.arrow({ s: 16 })}
+          {t("common.pickOffice")} {Ic.arrow({ s: 16 })}
         </button>
       </div>
     </form>

@@ -7,6 +7,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { openObject } from "../navigation.js";
 import { useCurrentPath } from "../hooks/useCurrentPath.js";
 import { useMatchMedia } from "../hooks/useMatchMedia.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -22,13 +23,13 @@ function mapPadding(mobile) {
   return mobile ? [36, 20] : [48, 48];
 }
 
-function buildPopup(o, { withButton = true, fromRef } = {}) {
+function buildPopup(o, { withButton = true, fromRef, moreLabel } = {}) {
   const wrap = L.DomUtil.create("div", "map-leaflet-popup");
   wrap.innerHTML = `<strong>${o.title}</strong><p>${o.district}</p><p>${o.address}</p>`;
   if (withButton) {
     const btn = L.DomUtil.create("button", "map-leaflet-popup-btn", wrap);
     btn.type = "button";
-    btn.textContent = "Подробнее";
+    btn.textContent = moreLabel;
     L.DomEvent.on(btn, "click", (ev) => {
       L.DomEvent.stopPropagation(ev);
       openObject(o.slug, fromRef?.current);
@@ -50,6 +51,7 @@ function setMapInteraction(map, enabled) {
 }
 
 export function MapLeaflet({ objects, single = false }) {
+  const { t } = useI18n();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const mobile = useMatchMedia(MOBILE_MQ);
@@ -86,7 +88,7 @@ export function MapLeaflet({ objects, single = false }) {
       bounds.extend(latlng);
       L.marker(latlng)
         .addTo(map)
-        .bindPopup(buildPopup(o, { withButton: !single, fromRef }), {
+        .bindPopup(buildPopup(o, { withButton: !single, fromRef, moreLabel: t("map.more") }), {
           maxWidth: mobile ? 260 : 320,
           autoPanPadding: mobile ? [24, 24] : [48, 48],
         });
@@ -117,7 +119,7 @@ export function MapLeaflet({ objects, single = false }) {
       map.remove();
       mapRef.current = null;
     };
-  }, [objects, mobile, single]);
+  }, [objects, mobile, single, t]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -137,10 +139,10 @@ export function MapLeaflet({ objects, single = false }) {
             type="button"
             className="map-leaflet-overlay-btn"
             onClick={() => setInteract(true)}
-            aria-label="Активировать карту"
+            aria-label={t("map.activate")}
           >
             <span className="ic">{IcPin()}</span>
-            <span className="tx">Коснитесь, чтобы перемещать карту</span>
+            <span className="tx">{t("map.tapToInteract")}</span>
           </button>
         </div>
       )}

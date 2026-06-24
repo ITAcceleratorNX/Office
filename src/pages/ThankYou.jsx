@@ -1,8 +1,13 @@
 import { useEffect } from "react";
 import { go } from "../navigation.js";
-import { Ic, WA, WT } from "../components/ui-core.jsx";
+import { Ic } from "../components/ui-core.jsx";
+import { useI18n } from "../i18n/I18nContext.jsx";
+import { useTMK } from "../hooks/useTMK.js";
 
 export function ThankYou() {
+  const { t } = useI18n();
+  const { waLink, WA_TEXT } = useTMK();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -16,11 +21,11 @@ export function ThankYou() {
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </div>
-        <h1>Спасибо! Заявка отправлена</h1>
-        <p>Ваша заявка отправлена. Специалист свяжется с вами для уточнения деталей и подберёт подходящие офисные решения.</p>
+        <h1>{t("thankYou.title")}</h1>
+        <p>{t("thankYou.text")}</p>
         <div className="ty-actions">
-          <a className="btn btn-primary btn-lg" onClick={() => go("/")}>Вернуться на главную</a>
-          <a className="btn btn-light btn-lg" href={WA(WT.general)} target="_blank" rel="noopener">{Ic.wa({ s: 18 })} Написать в WhatsApp</a>
+          <a className="btn btn-primary btn-lg" onClick={() => go("/")}>{t("common.backHome")}</a>
+          <a className="btn btn-light btn-lg" href={waLink(WA_TEXT.general)} target="_blank" rel="noopener">{Ic.wa({ s: 18 })} {t("common.writeWhatsapp")}</a>
         </div>
       </div>
     </div>

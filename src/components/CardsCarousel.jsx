@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, Children } from "react";
 import { Ic } from "./ui-core.jsx";
 import { useMatchMedia } from "../hooks/useMatchMedia.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
 
 const MOBILE_MQ = "(max-width: 660px)";
 
 export function CardsCarousel({ children, className = "", resetKey }) {
+  const { t } = useI18n();
   const mobile = useMatchMedia(MOBILE_MQ);
   const slides = Children.toArray(children);
   const [index, setIndex] = useState(0);
@@ -61,7 +63,7 @@ export function CardsCarousel({ children, className = "", resetKey }) {
             className="cards-carousel-btn cards-carousel-btn--prev"
             onClick={prev}
             disabled={index === 0}
-            aria-label="Предыдущий объект"
+            aria-label={t("carousel.prev")}
           >
             <span className="cards-carousel-btn-ic cards-carousel-btn-ic--prev">{Ic.arrow({ s: 18 })}</span>
           </button>
@@ -71,7 +73,7 @@ export function CardsCarousel({ children, className = "", resetKey }) {
             className="cards-carousel-btn cards-carousel-btn--next"
             onClick={next}
             disabled={index === last}
-            aria-label="Следующий объект"
+            aria-label={t("carousel.next")}
           >
             <span className="cards-carousel-btn-ic">{Ic.arrow({ s: 18 })}</span>
           </button>

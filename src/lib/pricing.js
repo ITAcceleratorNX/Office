@@ -1,9 +1,14 @@
-export function formatPriceLabel(priceFrom) {
+export function formatPriceLabel(priceFrom, t) {
   if (priceFrom == null) return null;
   const n = Number(priceFrom);
   if (!Number.isFinite(n) || n <= 0) return null;
   const formatted = n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  return `от ${formatted} тг/м² · мес`;
+  if (!t) return `от ${formatted} тг/м² · мес`;
+  return t("common.priceFrom", {
+    price: formatted,
+    currency: t("common.currency"),
+    perMonth: t("common.perMonth"),
+  });
 }
 
 export const DEFAULT_PRICE_BY_CLASS = {

@@ -2,12 +2,14 @@
    TMK — Map placeholder (2GIS stub) + Lead form
    ============================================================ */
 import { useState, useEffect } from "react";
-import TMK from "../data.js";
+import baseTMK from "../data.js";
 import { go, openObject } from "../navigation.js";
 import { useCurrentPath } from "../hooks/useCurrentPath.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
+import { useTMK } from "../hooks/useTMK.js";
 import { Ic, PhotoSlot } from "./ui-core.jsx";
 
-const MB = TMK.MAP_BOUNDS;
+const MB = baseTMK.MAP_BOUNDS;
 
 function coordToXY(c) {
   let x = (c.lng - MB.lngMin) / (MB.lngMax - MB.lngMin);
@@ -42,7 +44,7 @@ function MapStreets() {
       </g>
       <g stroke="#5E7E96" strokeOpacity="0.22" strokeWidth="2" fill="none">
         <path d="M-20 90 L820 70" /><path d="M-20 210 L820 188" />
-        <path d="M-20 330 L820 312" /><path d="M120 -20 L150 480" />
+        <path d="M-20 330 L820 320" /><path d="M120 -20 L150 480" />
         <path d="M330 -20 L360 480" /><path d="M560 -20 L590 480" />
       </g>
       <path d="M250 -20 L300 480" stroke="#7FA6BE" strokeOpacity="0.3" strokeWidth="4" fill="none" />
@@ -67,16 +69,17 @@ function MapPin({ o, active, onClick }) {
 }
 
 function MapPopup({ o, onClose, from }) {
+  const { t } = useI18n();
   const { x, y } = coordToXY(o.coords);
   return (
     <div className="map-popup" style={{ left: x + "%", top: y + "%" }} onClick={(e) => e.stopPropagation()}>
       <button className="x" onClick={onClose}>×</button>
       <div className="media"><PhotoSlot ph={o.title} src={o.photo} alt={o.title} /></div>
       <div className="body">
-        <div className="loc">{o.district} район</div>
+        <div className="loc">{o.district} {t("common.districtSuffix")}</div>
         <h4>{o.title}</h4>
         <div className="addr">{o.address}</div>
-        <a className="btn btn-dark btn-sm" onClick={() => openObject(o.slug, from)}>Подробнее {Ic.arrow({ s: 14 })}</a>
+        <a className="btn btn-dark btn-sm" onClick={() => openObject(o.slug, from)}>{t("map.more")} {Ic.arrow({ s: 14 })}</a>
       </div>
       <span className="arrow"></span>
     </div>
@@ -84,6 +87,7 @@ function MapPopup({ o, onClose, from }) {
 }
 
 export function MapPlaceholder({ objects, height = 480, single = false }) {
+  const { t } = useI18n();
   const [active, setActive] = useState(null);
   const from = useCurrentPath();
   const list = single ? objects.map((o) => ({ ...o, __single: true })) : objects;
@@ -92,9 +96,9 @@ export function MapPlaceholder({ objects, height = 480, single = false }) {
       <MapStreets />
       <div className="badge2gis">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#114A65" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-        Карта 2GIS
+        {t("map.badge")}
       </div>
-      <div className="note">Демо-карта · 2GIS подключим по API-ключу</div>
+      <div className="note">{t("map.demo")}</div>
       {list.map((o) => (
         <MapPin key={o.slug} o={o} active={active && active.slug === o.slug}
           onClick={single ? null : (obj) => setActive(obj)} />
@@ -103,8 +107,6 @@ export function MapPlaceholder({ objects, height = 480, single = false }) {
     </div>
   );
 }
-
-const FORMATS = TMK.officeFormats;
 
 function formatPhoneInput(raw) {
   let digits = raw.replace(/\D/g, "");
@@ -125,6 +127,8 @@ function phoneBodyDigits(phone) {
 }
 
 export function LeadForm({ sourcePage, objectTitle, compact, defaultFormat = "" }) {
+  const { t, lang } = useI18n();
+  const { officeFormats } = useTMK();
   const [v, setV] = useState({
     name: "",
     phone: "+7",
@@ -154,11 +158,11 @@ export function LeadForm({ sourcePage, objectTitle, compact, defaultFormat = "" 
 
   function validate() {
     const e = {};
-    if (!v.name.trim()) e.name = "Укажите имя";
+    if (!v.name.trim()) e.name = t("form.errName");
     const digits = phoneBodyDigits(v.phone);
-    if (!digits.length) e.phone = "Укажите телефон";
-    else if (digits.length < 10) e.phone = "Введите 10 цифр номера";
-    if (!v.company.trim()) e.company = "Укажите компанию";
+    if (!digits.length) e.phone = t("form.errPhone");
+    else if (digits.length < 10) e.phone = t("form.errPhoneDigits");
+    if (!v.company.trim()) e.company = t("form.errCompany");
     setErr(e);
     return Object.keys(e).length === 0;
   }
@@ -168,24 +172,32 @@ export function LeadForm({ sourcePage, objectTitle, compact, defaultFormat = "" 
     setSubmitError("");
     if (!validate()) return;
 
+    const formatLabel = v.format ? t(`formats.${v.format}`) : "";
+
     setSending(true);
     try {
       const res = await fetch("/api/send-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...v, sourcePage, objectTitle }),
+        body: JSON.stringify({
+          ...v,
+          format: formatLabel,
+          sourcePage,
+          objectTitle,
+          locale: lang,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (data.fields) setErr((prev) => ({ ...prev, ...data.fields }));
-        throw new Error(data.error || "Не удалось отправить заявку");
+        throw new Error(data.error || t("form.submitError"));
       }
       try {
-        sessionStorage.setItem("tmk_lead", JSON.stringify({ ...v, sourcePage, objectTitle, ts: Date.now() }));
+        sessionStorage.setItem("tmk_lead", JSON.stringify({ ...v, format: formatLabel, sourcePage, objectTitle, ts: Date.now() }));
       } catch (e) { /* ignore */ }
       go("/thank-you");
     } catch (e) {
-      setSubmitError(e.message || "Не удалось отправить заявку. Попробуйте позже или напишите в WhatsApp.");
+      setSubmitError(e.message || t("form.submitError"));
     } finally {
       setSending(false);
     }
@@ -194,58 +206,58 @@ export function LeadForm({ sourcePage, objectTitle, compact, defaultFormat = "" 
   return (
     <form className="lead-wrap" onSubmit={submit} noValidate>
       {objectTitle && (
-        <div className="lead-object-chip">{Ic.building({ s: 16 })} Заявка по объекту: {objectTitle}</div>
+        <div className="lead-object-chip">{Ic.building({ s: 16 })} {t("form.leadChip", { title: objectTitle })}</div>
       )}
       <div className="lead-grid">
         <div className="field">
-          <label>Имя <span className="req">*</span></label>
-          <input className={"control" + (err.name ? " invalid" : "")} value={v.name} onChange={set("name")} placeholder="Как к вам обращаться" />
+          <label>{t("form.name")} <span className="req">{t("common.required")}</span></label>
+          <input className={"control" + (err.name ? " invalid" : "")} value={v.name} onChange={set("name")} placeholder={t("form.namePh")} />
           {err.name && <span className="err-msg">{err.name}</span>}
         </div>
         <div className="field">
-          <label>Телефон <span className="req">*</span></label>
+          <label>{t("form.phone")} <span className="req">{t("common.required")}</span></label>
           <input
             className={"control" + (err.phone ? " invalid" : "")}
             value={v.phone}
             onChange={onPhoneChange}
             onKeyDown={onPhoneKeyDown}
             onFocus={() => { if (!v.phone) setV((s) => ({ ...s, phone: "+7" })); }}
-            placeholder="+7 ___ ___ __ __"
+            placeholder={t("form.phonePh")}
             inputMode="tel"
             autoComplete="tel"
           />
           {err.phone && <span className="err-msg">{err.phone}</span>}
         </div>
         <div className="field">
-          <label>Компания <span className="req">*</span></label>
-          <input className={"control" + (err.company ? " invalid" : "")} value={v.company} onChange={set("company")} placeholder="Название компании" />
+          <label>{t("form.company")} <span className="req">{t("common.required")}</span></label>
+          <input className={"control" + (err.company ? " invalid" : "")} value={v.company} onChange={set("company")} placeholder={t("form.companyPh")} />
           {err.company && <span className="err-msg">{err.company}</span>}
         </div>
         <div className="field">
-          <label>Желаемая площадь</label>
-          <input className="control" value={v.area} onChange={set("area")} placeholder="Например, 200–400 м²" />
+          <label>{t("form.area")}</label>
+          <input className="control" value={v.area} onChange={set("area")} placeholder={t("form.areaPh")} />
         </div>
         <div className="field">
-          <label>Бюджет</label>
-          <input className="control" value={v.budget} onChange={set("budget")} placeholder="Например, до 500 000 тг/мес" />
+          <label>{t("form.budget")}</label>
+          <input className="control" value={v.budget} onChange={set("budget")} placeholder={t("form.budgetPh")} />
         </div>
         <div className="field full">
-          <label>Формат офиса</label>
+          <label>{t("form.format")}</label>
           <select className="control" value={v.format} onChange={set("format")}>
-            <option value="">Выберите формат</option>
-            {FORMATS.map((f) => <option key={f} value={f}>{f}</option>)}
+            <option value="">{t("form.formatPh")}</option>
+            {officeFormats.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
           </select>
         </div>
         <div className="field full">
-          <label>Комментарий</label>
-          <textarea className="control" value={v.comment} onChange={set("comment")} placeholder="Дополнительные пожелания (необязательно)"></textarea>
+          <label>{t("form.comment")}</label>
+          <textarea className="control" value={v.comment} onChange={set("comment")} placeholder={t("form.commentPh")}></textarea>
         </div>
       </div>
       <div className="lead-submit-row">
         <button type="submit" className="btn btn-primary btn-lg" disabled={sending}>
-          {sending ? "Отправляем…" : <>Оставить заявку {Ic.arrow({ s: 16 })}</>}
+          {sending ? t("common.sending") : <>{t("common.submitLead")} {Ic.arrow({ s: 16 })}</>}
         </button>
-        {!compact && <span className="lead-note">Нажимая кнопку, вы соглашаетесь на обработку данных. На карточках указана ориентировочная ставка — точные условия уточняет менеджер.</span>}
+        {!compact && <span className="lead-note">{t("form.note")}</span>}
       </div>
       {submitError && <p className="lead-form-error">{submitError}</p>}
     </form>

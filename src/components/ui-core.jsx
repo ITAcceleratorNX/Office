@@ -2,9 +2,11 @@
    TMK — core UI components (icons, header, footer, cards…)
    ============================================================ */
 import { useState, useEffect, Fragment } from "react";
-import TMK from "../data.js";
 import { go, navSection } from "../navigation.js";
 import { useOpenObject } from "../hooks/useOpenObject.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
+import { useTMK } from "../hooks/useTMK.js";
+import { LanguageSwitcher } from "./LanguageSwitcher.jsx";
 
 /* ---------------- Icons ---------------- */
 export const Ic = {
@@ -23,10 +25,8 @@ export const Ic = {
   coffee: (p) => (<svg width={p?.s||15} height={p?.s||15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 0 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z"/></svg>),
 };
 
-export const WA = TMK.waLink;
-export const WT = TMK.WA_TEXT;
-
 export function PhotoSlot({ ph, src, alt }) {
+  const { t } = useI18n();
   if (src) {
     return (
       <div className="photo">
@@ -41,18 +41,20 @@ export function PhotoSlot({ ph, src, alt }) {
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
       <span style={{ color: "#6B8299", fontSize: 14, padding: 16, textAlign: "center" }}>
-        {ph || "Фото объекта"}
+        {ph || t("common.photoPlaceholder")}
       </span>
     </div>
   );
 }
 
 export function ClassBadge({ o, dark }) {
-  return <span className={"badge " + (dark ? "badge-class" : "badge-copper")}>Класс {o.buildingClass}</span>;
+  const { t } = useI18n();
+  return <span className={"badge " + (dark ? "badge-class" : "badge-copper")}>{t("common.class")} {o.buildingClass}</span>;
 }
 
 export function StatusBadge({ status }) {
-  const s = TMK.STATUS[status];
+  const { STATUS } = useTMK();
+  const s = STATUS[status];
   if (!s) return null;
   return <span className={"badge badge-status " + (s.tone === "reno" ? "reno" : s.tone === "launch" ? "launch" : "")}>{s.label}</span>;
 }
@@ -67,6 +69,8 @@ function Brand({ footer }) {
 }
 
 export function Header({ overlay }) {
+  const { t } = useI18n();
+  const { waLink, WA_TEXT } = useTMK();
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
   useEffect(() => {
@@ -84,15 +88,16 @@ export function Header({ overlay }) {
         <div className="container bar">
           <Brand />
           <nav className="nav">
-            <a className="link" onClick={navClick(() => go("/catalog"))}>Каталог</a>
-            <a className="link" onClick={navClick(() => navSection("serviced"))}>Сервисные офисы</a>
-            <a className="link" onClick={navClick(() => navSection("formats"))}>Форматы</a>
-            <a className="link" onClick={navClick(() => navSection("about"))}>О компании</a>
-            <a className="link" onClick={navClick(() => navSection("lead"))}>Контакты</a>
+            <a className="link" onClick={navClick(() => go("/catalog"))}>{t("nav.catalog")}</a>
+            <a className="link" onClick={navClick(() => navSection("serviced"))}>{t("nav.serviced")}</a>
+            <a className="link" onClick={navClick(() => navSection("formats"))}>{t("nav.formats")}</a>
+            <a className="link" onClick={navClick(() => navSection("about"))}>{t("nav.about")}</a>
+            <a className="link" onClick={navClick(() => navSection("lead"))}>{t("nav.contacts")}</a>
           </nav>
           <div className="header-actions">
-            <a className="hdr-wa" href={WA(WT.general)} target="_blank" rel="noopener">{Ic.wa({ s: 17 })} WhatsApp</a>
-            <button className="burger" aria-label="Меню" onClick={() => setMenu(true)}><span></span></button>
+            <LanguageSwitcher compact />
+            <a className="hdr-wa" href={waLink(WA_TEXT.general)} target="_blank" rel="noopener">{Ic.wa({ s: 17 })} {t("common.whatsapp")}</a>
+            <button className="burger" aria-label={t("common.menu")} onClick={() => setMenu(true)}><span></span></button>
           </div>
         </div>
       </header>
@@ -101,15 +106,16 @@ export function Header({ overlay }) {
           <span className="bn">TMK Limited Properties Services</span>
           <button className="x" onClick={() => setMenu(false)}>×</button>
         </div>
+        <LanguageSwitcher showLabel />
         <nav>
-          <a onClick={navClick(() => go("/catalog"))}>Каталог офисов</a>
-          <a onClick={navClick(() => navSection("serviced"))}>Сервисные офисы</a>
-          <a onClick={navClick(() => navSection("formats"))}>Форматы офисов</a>
-          <a onClick={navClick(() => navSection("about"))}>О компании</a>
-          <a onClick={navClick(() => navSection("lead"))}>Оставить заявку</a>
+          <a onClick={navClick(() => go("/catalog"))}>{t("nav.catalogOffices")}</a>
+          <a onClick={navClick(() => navSection("serviced"))}>{t("nav.serviced")}</a>
+          <a onClick={navClick(() => navSection("formats"))}>{t("nav.officeFormats")}</a>
+          <a onClick={navClick(() => navSection("about"))}>{t("nav.about")}</a>
+          <a onClick={navClick(() => navSection("lead"))}>{t("nav.leaveRequest")}</a>
         </nav>
         <div className="ma">
-          <a className="btn btn-primary btn-block" href={WA(WT.general)} target="_blank" rel="noopener">{Ic.wa({ s: 18 })} Написать в WhatsApp</a>
+          <a className="btn btn-primary btn-block" href={waLink(WA_TEXT.general)} target="_blank" rel="noopener">{Ic.wa({ s: 18 })} {t("common.writeWhatsapp")}</a>
         </div>
       </div>
     </Fragment>
@@ -117,7 +123,9 @@ export function Header({ overlay }) {
 }
 
 export function Footer() {
-  const C = TMK.COMPANY;
+  const { t } = useI18n();
+  const { COMPANY, waLink, WA_TEXT } = useTMK();
+  const C = COMPANY;
   return (
     <footer className="site-footer">
       <span className="glow"></span>
@@ -126,32 +134,32 @@ export function Footer() {
           <div className="footer-brand">
             <div className="bn">TMK</div>
             <div className="bs">Limited Properties Services</div>
-            <p>Подбор офисов и коммерческой недвижимости в Алматы под задачи бизнеса — с сопровождением заявки на каждом этапе.</p>
+            <p>{t("nav.footerTagline")}</p>
           </div>
           <div className="fcol">
-            <h5>Навигация</h5>
-            <a onClick={() => go("/")}>Главная</a>
-            <a onClick={() => go("/catalog")}>Каталог офисов</a>
-            <a onClick={() => navSection("serviced")}>Сервисные офисы</a>
-            <a onClick={() => navSection("about")}>О компании</a>
+            <h5>{t("nav.navigation")}</h5>
+            <a onClick={() => go("/")}>{t("common.home")}</a>
+            <a onClick={() => go("/catalog")}>{t("nav.catalogOffices")}</a>
+            <a onClick={() => navSection("serviced")}>{t("nav.serviced")}</a>
+            <a onClick={() => navSection("about")}>{t("nav.about")}</a>
           </div>
           <div className="fcol">
-            <h5>Форматы</h5>
-            <a onClick={() => navSection("formats")}>Офис</a>
-            <a onClick={() => navSection("formats")}>Сервисный офис</a>
-            <a onClick={() => navSection("formats")}>Офис под ключ</a>
+            <h5>{t("nav.formatsCol")}</h5>
+            <a onClick={() => navSection("formats")}>{t("formats.office")}</a>
+            <a onClick={() => navSection("formats")}>{t("formats.serviced")}</a>
+            <a onClick={() => navSection("formats")}>{t("formats.turnkey")}</a>
           </div>
           <div className="fcol">
-            <h5>Контакты</h5>
+            <h5>{t("nav.contactsCol")}</h5>
             <a href={"tel:+" + C.waNumber} className="fitem"><b>{C.phoneDisplay}</b></a>
             <a href={"mailto:" + C.email} className="fitem">{C.email}</a>
-            <a href={WA(WT.general)} target="_blank" rel="noopener" className="fitem" style={{ color: "#fff", fontWeight: 700 }}>{Ic.wa({ s: 15 })} &nbsp;Написать в WhatsApp</a>
-            <span className="fitem" style={{ cursor: "default" }}>Алматы, Казахстан</span>
+            <a href={waLink(WA_TEXT.general)} target="_blank" rel="noopener" className="fitem" style={{ color: "#fff", fontWeight: 700 }}>{Ic.wa({ s: 15 })} &nbsp;{t("common.writeWhatsapp")}</a>
+            <span className="fitem" style={{ cursor: "default" }}>{t("common.almaty")}, {t("common.kazakhstan")}</span>
           </div>
         </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} TMK Limited Properties Services</span>
-          <span>Аренда офисов и коммерческой недвижимости · Алматы</span>
+          <span>{t("nav.footerLegal")}</span>
         </div>
       </div>
     </footer>
@@ -159,43 +167,47 @@ export function Footer() {
 }
 
 export function WhatsAppFloat() {
+  const { t } = useI18n();
+  const { waLink, WA_TEXT } = useTMK();
   return (
-    <a className="wa-float" href={WA(WT.general)} target="_blank" rel="noopener" aria-label="Написать в WhatsApp">
+    <a className="wa-float" href={waLink(WA_TEXT.general)} target="_blank" rel="noopener" aria-label={t("common.writeWhatsapp")}>
       <span className="ic">{Ic.wa({ s: 22 })}</span>
-      <span className="tx"><b>Написать в WhatsApp</b><span>Ответим в рабочее время</span></span>
+      <span className="tx"><b>{t("common.writeWhatsapp")}</b><span>{t("common.whatsappFloatSub")}</span></span>
     </a>
   );
 }
 
 function ObjectCardFoot({ o, open, detailed }) {
+  const { t } = useI18n();
   return (
     <div className="obj-card-foot">
       <div className="obj-card-metrics">
         <div className="specs">
           <div className="sp">
-            {o.gbaLabel ? <><b>{o.gbaLabel}</b><span>{detailed ? "общая" : "общая площадь"}</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
+            {o.gbaLabel ? <><b>{o.gbaLabel}</b><span>{detailed ? t("common.totalShort") : t("common.totalArea")}</span></> : <b className="sp-ph" aria-hidden="true">&nbsp;</b>}
           </div>
           {detailed && o.gfaLabel ? (
             <div className="sp">
-              <b>{o.gfaLabel.replace(" м²/этаж", "")}</b><span>этаж</span>
+              <b>{o.gfaLabel.replace(" м²/этаж", "")}</b><span>{t("common.floor")}</span>
             </div>
           ) : null}
           {o.floors != null && (
             <div className="sp">
-              <b>{o.floors}</b><span>этажей</span>
+              <b>{o.floors}</b><span>{t("common.floors")}</span>
             </div>
           )}
         </div>
         {o.priceLabel && <div className="obj-card-price">{o.priceLabel}</div>}
       </div>
       <button type="button" className="obj-card-more" onClick={() => open(o.slug)}>
-        Подробнее {Ic.arrow({ s: 14 })}
+        {t("common.more")} {Ic.arrow({ s: 14 })}
       </button>
     </div>
   );
 }
 
 export function ObjectCardMain({ o }) {
+  const { t } = useI18n();
   const open = useOpenObject();
   return (
     <article className="obj-card">
@@ -207,7 +219,7 @@ export function ObjectCardMain({ o }) {
         <PhotoSlot ph={o.title} src={o.photo} alt={o.title} />
       </div>
       <div className="body">
-        <div className="loc">{Ic.pin({ s: 14 })} {o.district} район</div>
+        <div className="loc">{Ic.pin({ s: 14 })} {o.district} {t("common.districtSuffix")}</div>
         <h3>{o.title}</h3>
         <div className="addr">{o.address}</div>
         <ObjectCardFoot o={o} open={open} detailed={false} />
@@ -217,6 +229,7 @@ export function ObjectCardMain({ o }) {
 }
 
 export function ObjectCardCatalog({ o }) {
+  const { t } = useI18n();
   const open = useOpenObject();
   return (
     <article className="obj-card catalog-card">
@@ -229,7 +242,7 @@ export function ObjectCardCatalog({ o }) {
       </div>
       <div className="body">
         <div className="obj-card-main">
-          <div className="loc">{Ic.pin({ s: 14 })} {o.district} район · {o.address}</div>
+          <div className="loc">{Ic.pin({ s: 14 })} {o.district} {t("common.districtSuffix")} · {o.address}</div>
           <h3>{o.title}</h3>
           <p className="desc">{o.shortDescription}</p>
         </div>
@@ -240,12 +253,13 @@ export function ObjectCardCatalog({ o }) {
 }
 
 export function SimilarCard({ o }) {
+  const { t } = useI18n();
   const open = useOpenObject();
   return (
     <article className="sim-card" onClick={() => open(o.slug)}>
       <div className="media"><PhotoSlot ph={o.title} src={o.photo} alt={o.title} /></div>
       <div className="body">
-        <div className="loc">{Ic.pin({ s: 13 })} {o.district} район</div>
+        <div className="loc">{Ic.pin({ s: 13 })} {o.district} {t("common.districtSuffix")}</div>
         <h4>{o.title}</h4>
       </div>
     </article>
