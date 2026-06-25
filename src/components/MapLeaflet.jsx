@@ -25,7 +25,7 @@ function mapPadding(mobile) {
 
 function buildPopup(o, { withButton = true, fromRef, moreLabel } = {}) {
   const wrap = L.DomUtil.create("div", "map-leaflet-popup");
-  wrap.innerHTML = `<strong>${o.title}</strong><p>${o.district}</p><p>${o.address}</p>`;
+  wrap.innerHTML = `<strong>${o.title}</strong><p>${o.districtLabel ?? o.district}</p><p>${o.address}</p>`;
   if (withButton) {
     const btn = L.DomUtil.create("button", "map-leaflet-popup-btn", wrap);
     btn.type = "button";

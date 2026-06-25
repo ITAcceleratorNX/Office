@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { leadMessages } from "./lead-i18n.js";
 
 const DEFAULT_TO = "Yerlepessov.t@tmk-limited.com";
 
@@ -8,18 +9,19 @@ function phoneBodyDigits(phone) {
 }
 
 export function validateLead(payload) {
+  const m = leadMessages(payload?.locale);
   const errors = {};
   const name = String(payload?.name || "").trim();
   const company = String(payload?.company || "").trim();
   const digits = phoneBodyDigits(payload?.phone);
 
-  if (!name) errors.name = "Укажите имя";
-  if (!digits.length) errors.phone = "Укажите телефон";
-  else if (digits.length < 10) errors.phone = "Введите 10 цифр номера";
-  if (!company) errors.company = "Укажите компанию";
+  if (!name) errors.name = m.errName;
+  if (!digits.length) errors.phone = m.errPhone;
+  else if (digits.length < 10) errors.phone = m.errPhoneDigits;
+  if (!company) errors.company = m.errCompany;
 
   if (Object.keys(errors).length) {
-    const err = new Error("Проверьте поля формы");
+    const err = new Error(m.validation);
     err.code = "VALIDATION";
     err.fields = errors;
     throw err;
@@ -35,6 +37,7 @@ export function validateLead(payload) {
     comment: String(payload?.comment || "").trim(),
     sourcePage: String(payload?.sourcePage || "").trim(),
     objectTitle: String(payload?.objectTitle || "").trim(),
+    locale: String(payload?.locale || "ru").trim(),
   };
 }
 
@@ -47,26 +50,27 @@ function escapeHtml(value) {
 }
 
 function buildEmail(lead) {
-  const subjectParts = ["Заявка с сайта TMK"];
+  const m = leadMessages(lead.locale);
+  const subjectParts = [m.subject];
   if (lead.objectTitle) subjectParts.push(lead.objectTitle);
   else if (lead.sourcePage) subjectParts.push(lead.sourcePage);
 
   const rows = [
-    ["Имя", lead.name],
-    ["Телефон", lead.phone],
-    ["Компания", lead.company],
-    ["Желаемая площадь", lead.area || "—"],
-    ["Бюджет", lead.budget || "—"],
-    ["Формат офиса", lead.format || "—"],
-    ["Комментарий", lead.comment || "—"],
-    ["Страница", lead.sourcePage || "—"],
-    ["Объект", lead.objectTitle || "—"],
+    [m.fields.name, lead.name],
+    [m.fields.phone, lead.phone],
+    [m.fields.company, lead.company],
+    [m.fields.area, lead.area || "—"],
+    [m.fields.budget, lead.budget || "—"],
+    [m.fields.format, lead.format || "—"],
+    [m.fields.comment, lead.comment || "—"],
+    [m.fields.sourcePage, lead.sourcePage || "—"],
+    [m.fields.object, lead.objectTitle || "—"],
   ];
 
   const text = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.5;color:#102a43">
-      <h2 style="margin:0 0 16px">Новая заявка с сайта</h2>
+      <h2 style="margin:0 0 16px">${escapeHtml(m.emailTitle)}</h2>
       <table style="border-collapse:collapse;width:100%;max-width:640px">
         ${rows
           .map(
@@ -89,7 +93,7 @@ function getSmtpConfig() {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   if (!host || !user || !pass) {
-    const err = new Error("Почтовый сервер не настроен");
+    const err = new Error(leadMessages("ru").config);
     err.code = "CONFIG";
     throw err;
   }

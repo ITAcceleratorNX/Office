@@ -19,6 +19,10 @@ export function I18nProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.lang = lang;
+    const messages = LOCALES[lang] || LOCALES[DEFAULT_LOCALE];
+    if (messages.seo?.title) document.title = messages.seo.title;
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta && messages.seo?.description) meta.setAttribute("content", messages.seo.description);
   }, [lang]);
 
   const t = useMemo(() => createTranslator(LOCALES[lang] || LOCALES[DEFAULT_LOCALE]), [lang]);

@@ -29,7 +29,7 @@ export function HeroSearchBar() {
             <span className="hero-search-label">{t("heroSearch.district")}</span>
             <select className="hero-search-control" value={district} onChange={(e) => setDistrict(e.target.value)}>
               <option value="">{t("common.any")}</option>
-              {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+              {districts.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
             </select>
           </label>
           <label className="hero-search-field">

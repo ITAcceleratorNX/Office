@@ -188,7 +188,7 @@ function ObjectCardFoot({ o, open, detailed }) {
           </div>
           {detailed && o.gfaLabel ? (
             <div className="sp">
-              <b>{o.gfaLabel.replace(" м²/этаж", "")}</b><span>{t("common.floor")}</span>
+              <b>{o.gfaDisplay ?? o.gfaLabel.replace(/\s*м²\/этаж/, "").replace(/ m²\/floor/, "")}</b><span>{t("common.floor")}</span>
             </div>
           ) : null}
           {o.floors != null && (
@@ -219,7 +219,7 @@ export function ObjectCardMain({ o }) {
         <PhotoSlot ph={o.title} src={o.photo} alt={o.title} />
       </div>
       <div className="body">
-        <div className="loc">{Ic.pin({ s: 14 })} {o.district} {t("common.districtSuffix")}</div>
+        <div className="loc">{Ic.pin({ s: 14 })} {o.districtLabel ?? o.district} {t("common.districtSuffix")}</div>
         <h3>{o.title}</h3>
         <div className="addr">{o.address}</div>
         <ObjectCardFoot o={o} open={open} detailed={false} />
@@ -242,7 +242,7 @@ export function ObjectCardCatalog({ o }) {
       </div>
       <div className="body">
         <div className="obj-card-main">
-          <div className="loc">{Ic.pin({ s: 14 })} {o.district} {t("common.districtSuffix")} · {o.address}</div>
+          <div className="loc">{Ic.pin({ s: 14 })} {o.districtLabel ?? o.district} {t("common.districtSuffix")} · {o.address}</div>
           <h3>{o.title}</h3>
           <p className="desc">{o.shortDescription}</p>
         </div>
@@ -259,7 +259,7 @@ export function SimilarCard({ o }) {
     <article className="sim-card" onClick={() => open(o.slug)}>
       <div className="media"><PhotoSlot ph={o.title} src={o.photo} alt={o.title} /></div>
       <div className="body">
-        <div className="loc">{Ic.pin({ s: 13 })} {o.district} {t("common.districtSuffix")}</div>
+        <div className="loc">{Ic.pin({ s: 13 })} {o.districtLabel ?? o.district} {t("common.districtSuffix")}</div>
         <h4>{o.title}</h4>
       </div>
     </article>

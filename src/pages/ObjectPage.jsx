@@ -51,7 +51,7 @@ export function ObjectPage({ slug }) {
             <a onClick={() => go("/")}>{t("common.home")}</a> / <a onClick={() => go(catalogHref)}>{t("common.catalog")}</a> / <span>{o.title}</span>
           </div>
           <h1>{o.title}</h1>
-          <div className="addrline">{Ic.pin({ s: 17 })} <span>{o.district} {t("common.districtSuffix")} · {o.address}, {t("common.almaty")}</span></div>
+          <div className="addrline">{Ic.pin({ s: 17 })} <span>{o.districtLabel ?? o.district} {t("common.districtSuffix")} · {o.address}, {t("common.almaty")}</span></div>
           <div className="meta">
             <ClassBadge o={o} dark />
             {o.classNote && <span className="badge badge-copper">{o.classNote}</span>}
@@ -102,13 +102,13 @@ export function ObjectPage({ slug }) {
           <SectionHead
             eyebrow={<Fragment>{Ic.pin({ s: 14 })} {t("common.onMap")}</Fragment>}
             title={t("object.mapTitle")}
-            text={`${o.address}, ${t("common.almaty")} · ${o.district} ${t("common.districtSuffix")}`}
+            text={`${o.address}, ${t("common.almaty")} · ${o.districtLabel ?? o.district} ${t("common.districtSuffix")}`}
           />
           {o.coords != null ? (
             <MapLeaflet objects={[o]} single />
           ) : (
             <div className="map-ph map-ph--empty">
-              <p>{Ic.pin({ s: 17 })} {o.address}, {t("common.almaty")} · {o.district} {t("common.districtSuffix")}</p>
+              <p>{Ic.pin({ s: 17 })} {o.address}, {t("common.almaty")} · {o.districtLabel ?? o.district} {t("common.districtSuffix")}</p>
             </div>
           )}
         </div>

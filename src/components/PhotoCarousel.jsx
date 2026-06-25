@@ -14,6 +14,10 @@ function CarouselImage({ src, alt, eager }) {
   );
 }
 
+function tabClass(base, active) {
+  return active ? `${base} is-active` : base;
+}
+
 export function PhotoCarousel({ title, photos = [], fallback }) {
   const { t } = useI18n();
   const slides = photos.length > 0 ? photos : fallback ? [fallback] : [];
@@ -156,7 +160,7 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
                     role="tab"
                     aria-selected={i === index}
                     aria-label={t("photo.photoN", { n: i + 1 })}
-                    className={"photo-carousel-dot" + (i === index ? " is-active" : "")}
+                    className={tabClass("photo-carousel-dot", i === index)}
                     onClick={() => setIndex(i)}
                   />
                 ))}
@@ -170,10 +174,12 @@ export function PhotoCarousel({ title, photos = [], fallback }) {
                     role="tab"
                     aria-selected={i === index}
                     aria-label={t("photo.photoN", { n: i + 1 })}
-                    className={"photo-carousel-thumb" + (i === index ? " is-active" : "")}
+                    className={tabClass("photo-carousel-thumb", i === index)}
                     onClick={() => setIndex(i)}
                   >
-                    <CarouselImage src={src} alt="" eager={i === index} />
+                    <span className="photo-carousel-thumb-inner">
+                      <CarouselImage src={src} alt="" eager={i === index} />
+                    </span>
                   </button>
                 ))}
               </div>

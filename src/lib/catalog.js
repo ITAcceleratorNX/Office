@@ -1,14 +1,14 @@
-import TMK from "../data.js";
+import baseTMK from "../data.js";
 
 export const CATALOG_PAGE_SIZE = 9;
 
-export function filterObjects({ q = "", district = "", cls = "", area = "" } = {}) {
-  return TMK.objects.filter((o) => {
+export function filterObjects(objects, { q = "", district = "", cls = "", area = "" } = {}) {
+  return objects.filter((o) => {
     if (q && !o.title.toLowerCase().includes(q.toLowerCase())) return false;
     if (district && o.district !== district) return false;
     if (cls && !o.classKeys.includes(cls)) return false;
     if (area) {
-      const range = TMK.areaRanges.find((x) => x.id === area);
+      const range = baseTMK.areaRanges.find((x) => x.id === area);
       if (range && (o.gba == null || !range.test(o.gba))) return false;
     }
     return true;

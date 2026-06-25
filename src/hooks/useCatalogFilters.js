@@ -6,7 +6,7 @@ function parsePage(raw) {
   return Math.max(1, parseInt(raw || "1", 10) || 1);
 }
 
-export function useCatalogFilters() {
+export function useCatalogFilters(objects) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const q = searchParams.get("q") ?? "";
@@ -31,8 +31,8 @@ export function useCatalogFilters() {
   };
 
   const filtered = useMemo(
-    () => filterObjects({ q, district, cls, area }),
-    [q, district, cls, area],
+    () => filterObjects(objects, { q, district, cls, area }),
+    [objects, q, district, cls, area],
   );
 
   const { page: safePage, totalPages, items: paged } = useMemo(
@@ -61,7 +61,6 @@ export function useCatalogFilters() {
   const changePage = (next) => {
     if (next < 1 || next > totalPages || next === safePage) return;
     patchParams({ page: next }, false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return {

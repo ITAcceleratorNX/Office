@@ -13,7 +13,7 @@ function waLink(text) {
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
-const MAP_BOUNDS = { latMin: 43.205, latMax: 43.262, lngMin: 76.900, lngMax: 76.968 };
+const MAP_BOUNDS = { latMin: 43.205, latMax: 43.285, lngMin: 76.900, lngMax: 76.968 };
 
 const STATUS = {
   active: { label: "Введён в эксплуатацию", tone: "status" },
@@ -23,7 +23,7 @@ const STATUS = {
 
 const PHOTO_FILES = {
   "abylai-khan-plaza": "Abylai khan plaza.png",
-  "almaty-plaza": "Almaty plaza.png",
+  "almaty-plaza": "Almaty plaza.jpg",
   "almaty-residence": "Almaty Residence.png",
   "avenue-310": "Avenue 310.png",
   "avenue-city": "Avenue city.png",
@@ -35,8 +35,13 @@ const PHOTO_FILES = {
   "forum-dostyk": "Forum.png",
   "ken-dala": "Ken Dala.png",
   "premium": "Premium.png",
-  "stanitsa": "Stancia.png",
+  "stanitsa": "Stancia.jpg",
   "tole-bi-101": "Tole bi.png",
+  jenis: "jenis.jpg",
+  "saba-plaza": "saba-plaza.jpg",
+  eurostandart: "eurostandart.jpg",
+  "a-plaza": "a-plaza.jpg",
+  "almaty-towers": "almaty-towers.jpg",
 };
 
 function fmtNum(n) {
@@ -104,6 +109,7 @@ function makeObj(row) {
     classNote,
     gba: gba ?? null,
     gbaLabel: gbaLabelFinal,
+    gfa: gfa ?? null,
     gfaLabel,
     floors: floors ?? null,
     parking,
@@ -152,7 +158,7 @@ const RAW_OBJECTS = [
   },
   {
     slug: "almaty-plaza", title: "Almaty Plaza", district: "Ауэзовский", address: "Наурызбай батыра 17А", coords: { lat: 43.257408, lng: 76.926186 },
-    photo: "/assets/objects/Almaty%20plaza.png",
+    photo: "/assets/objects/Almaty%20plaza.jpg",
     buildingClass: "A", gba: 24000, gfa: 1846, floors: 13, lifts: true,
     ventilation: "Естественная / приточно-вытяжная", conditioning: "Местное",
     parking: "123 места", infrastructure: ["Аптеки", "Рестораны", "Больница", "Парк", "Магазины"],
@@ -304,7 +310,7 @@ const RAW_OBJECTS = [
   },
   {
     slug: "time-square", title: "Time Square", district: "Медеуский", address: "Самал-2", coords: { lat: 43.227780, lng: 76.956285 },
-    photo: "/assets/objects/time-square.png",
+    photo: "/assets/objects/time-square.jpg",
     buildingClass: "B", gba: 9000, gbaLabel: "9 000 м²", gfa: 1000, floors: 3, lifts: true,
     ventilation: "Приточно-вытяжная", conditioning: "Центральное",
     parking: "70 мест", infrastructure: ["Кафе","Магазины","Рестораны"],
@@ -348,7 +354,7 @@ const RAW_OBJECTS = [
   },
   {
     slug: "alatau-grand", title: "Алатау Гранд", district: "Бостандыкский", address: "Тимирязева 28", coords: { lat: 43.229684, lng: 76.932996 },
-    photo: "/assets/objects/Alatau%20Grand.png",
+    photo: "/assets/objects/Alatau%20Grand.jpg",
     buildingClass: "B", gba: 28000, gbaLabel: "28 000 м²", gfa: 2000, floors: 14, lifts: true,
     ventilation: "Приточно-вытяжная", conditioning: "Центральное",
     parking: "120 мест", infrastructure: ["Магазины","Кафе","Аптеки"],
@@ -410,8 +416,8 @@ const RAW_OBJECTS = [
     parking: "50 мест", infrastructure: ["Магазины","Кафе","Аптеки"],
   },
   {
-    slug: "rams", title: "Рубенштейна 48", district: "Алмалинский", address: "Рубинштейна 48", coords: { lat: 43.222195, lng: 76.967460 },
-    photo: "/assets/objects/Rubenshtein%2048.png",
+    slug: "rams", title: "KAZAT", district: "Алмалинский", address: "Рубинштейна 48", coords: { lat: 43.222195, lng: 76.967460 },
+    photo: "/assets/objects/Rubenshtein%2048.jpg",
     buildingClass: "B", gba: null, floors: 8, lifts: true,
     ventilation: "Приточно-вытяжная", conditioning: "Центральное",
     parking: "Наземный паркинг", infrastructure: ["Магазины","Кафе","Аптеки"],
@@ -432,10 +438,50 @@ const RAW_OBJECTS = [
   },
   {
     slug: "star", title: "Star", district: "Бостандыкский", address: "Назарбаева 187Б", coords: { lat: 43.240688, lng: 76.947228 },
-    photo: "/assets/objects/Star.png",
+    photo: "/assets/objects/Star.jpg",
     buildingClass: "B", gba: 9000, gbaLabel: "9 000 м²", gfa: 1125, floors: 8, lifts: true,
     ventilation: "Приточно-вытяжная", conditioning: "Центральное",
     parking: "50 мест", infrastructure: ["Магазины","Кафе","Аптеки"],
+  },
+  {
+    slug: "jenis", title: "Jenis", district: "Бостандыкский", address: "Бухар Жырау 33", coords: { lat: 43.232848, lng: 76.922354 },
+    buildingClass: "B", gba: 9000, gfa: 1000, floors: 9, lifts: true,
+    ventilation: "Естественная", conditioning: "Местное",
+    parking: "20 мест", planning: "Кабинеты · Open space",
+    infrastructure: ["Аптеки", "Магазины", "Кафе", "Банкоматы", "Супермаркет"],
+    similar: ["saba-plaza", "baykonyr", "almaty-residence"],
+  },
+  {
+    slug: "saba-plaza", title: "Saba Plaza", district: "Алмалинский", address: "Кожамкулова 265", coords: { lat: 43.244870, lng: 76.917459 },
+    buildingClass: "B+", gba: 10240, gfa: 2048, floors: 5, lifts: true,
+    ventilation: "Приточно-вытяжная", conditioning: "Центральное",
+    parking: "106 мест", planning: "Кабинеты · Open space",
+    infrastructure: ["Аптеки", "Супермаркет", "Магазины", "Кафе", "Банкоматы"],
+    similar: ["jenis", "almaty-residence", "premium"],
+  },
+  {
+    slug: "eurostandart", title: "Eurostandart", district: "Алмалинский", address: "Назарбаева 28/3", coords: { lat: 43.274520, lng: 76.946064 },
+    buildingClass: "B+", gba: 4380, gfa: 876, floors: 5, lifts: true,
+    ventilation: "Приточно-вытяжная / естественная", conditioning: "Местное",
+    parking: "116 мест", planning: "Open space",
+    infrastructure: ["Аптеки", "Магазины", "Кафе"],
+    similar: ["star", "teniz-towers", "ken-dala"],
+  },
+  {
+    slug: "a-plaza", title: "A Plaza", district: "Медеуский", address: "Ахмедьярова 25а", coords: { lat: 43.216964, lng: 76.950397 },
+    buildingClass: "B+", gba: 3000, gfa: 600, floors: 5, lifts: true,
+    ventilation: "Естественная", conditioning: "Местное",
+    parking: "5 мест", planning: "Кабинеты",
+    infrastructure: ["Аптеки", "Магазины", "Кафе", "Банкоматы"],
+    similar: ["esentai-tower", "nurly-tau", "koktem-grand"],
+  },
+  {
+    slug: "almaty-towers", title: "Almaty Towers", district: "Бостандыкский", address: "Байзакова 280", coords: { lat: 43.236726, lng: 76.915764 },
+    buildingClass: "B", gba: 87600, gfa: 3504, floors: 25, lifts: true,
+    ventilation: "Приточно-вытяжная / естественная", conditioning: "Местное / центральное",
+    parking: "800 мест", planning: "Кабинеты · Open space",
+    infrastructure: ["Магазины", "Кафе", "Отель"],
+    similar: ["esentai-tower", "capital-tower", "bnc-plaza"],
   },
 ];
 

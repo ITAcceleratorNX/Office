@@ -16,7 +16,7 @@ export function Catalog() {
     q, district, cls, area, format, page, showMap,
     patchParams, filtered, paged, totalPages,
     active, reset, changePage,
-  } = useCatalogFilters();
+  } = useCatalogFilters(objects);
 
   const formatLabel = format && FORMAT_KEYS.includes(format) ? t(`formats.${format}`) : format;
 
@@ -51,7 +51,7 @@ export function Catalog() {
                 <label>{t("catalog.districtLabel")}</label>
                 <select className="control" value={district} onChange={(e) => patchParams({ district: e.target.value, page: null })}>
                   <option value="">{t("common.allDistricts")}</option>
-                  {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+                  {districts.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
                 </select>
               </div>
               <div className="ffield">

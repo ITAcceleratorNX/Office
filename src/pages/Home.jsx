@@ -34,17 +34,17 @@ export function Home() {
               <div className="stat-row">
                 <div className="s"><b>350 000+</b><span>{t("home.statArea")}</span></div>
                 <div className="stat-divider" />
-                <div className="s"><b>15</b><span>{t("home.statObjects")}</span></div>
+                <div className="s"><b>{objects.length}</b><span>{t("home.statObjects")}</span></div>
                 <div className="stat-divider" />
                 <div className="s"><b>A–B</b><span>{t("home.statClasses")}</span></div>
               </div>
             </div>
             <div className="hero-card">
               <span className="chip">{t("home.heroChip")}</span>
-              <PhotoSlot ph="Esentai Tower — обложка" src={hero.photo} alt="Esentai Tower" />
+              <PhotoSlot ph={t("home.heroPhotoAlt")} src={hero.photo} alt="Esentai Tower" />
               <div className="tagline">
                 <b>Esentai Tower</b>
-                <span>Бостандыкский {t("common.districtSuffix")} · Аль-Фараби 77/7 · {t("home.heroFloor")}</span>
+                <span>{t("districts.bostandyk")} {t("common.districtSuffix")} · {hero.address} · {t("home.heroFloor")}</span>
               </div>
             </div>
           </div>

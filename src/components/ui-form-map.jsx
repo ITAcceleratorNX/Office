@@ -76,7 +76,7 @@ function MapPopup({ o, onClose, from }) {
       <button className="x" onClick={onClose}>×</button>
       <div className="media"><PhotoSlot ph={o.title} src={o.photo} alt={o.title} /></div>
       <div className="body">
-        <div className="loc">{o.district} {t("common.districtSuffix")}</div>
+        <div className="loc">{o.districtLabel ?? o.district} {t("common.districtSuffix")}</div>
         <h4>{o.title}</h4>
         <div className="addr">{o.address}</div>
         <a className="btn btn-dark btn-sm" onClick={() => openObject(o.slug, from)}>{t("map.more")} {Ic.arrow({ s: 14 })}</a>

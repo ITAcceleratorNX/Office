@@ -8,13 +8,22 @@ function galleryPaths(slug, count) {
 }
 
 const OFFICE_PHOTOS = {
-  "almaty-plaza": galleryPaths("almaty-plaza", 7),
   "abylai-khan-plaza": galleryPaths("abylai-khan-plaza", 7),
   "alatau-grand": galleryPaths("alatau-grand", 7),
-  venus: galleryPaths("venus", 7),
-  stanitsa: galleryPaths("stanitsa", 1),
+  "almaty-plaza": galleryPaths("almaty-plaza", 7),
+  "avrora": galleryPaths("avrora", 2),
+  "d-43": galleryPaths("d-43", 2),
+  "element-tower": galleryPaths("element-tower", 5),
+  "fortis": galleryPaths("fortis", 5),
+  "green-tower": galleryPaths("green-tower", 7),
   "koktem-grand": galleryPaths("koktem-grand", 7),
   "nurly-tau": galleryPaths("nurly-tau", 7),
+  "prime": galleryPaths("prime", 2),
+  "rams": galleryPaths("rams", 4),
+  "stanitsa": galleryPaths("stanitsa", 3),
+  "star": galleryPaths("star", 3),
+  "time-square": galleryPaths("time-square", 7),
+  "venus": galleryPaths("venus", 7),
 };
 
 export function getOfficePhotos(slug) {
