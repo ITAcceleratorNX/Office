@@ -23,7 +23,7 @@ const OFFICE_PHOTOS = {
   "stanitsa": galleryPaths("stanitsa", 3),
   "star": galleryPaths("star", 3),
   "time-square": galleryPaths("time-square", 7),
-  "venus": galleryPaths("venus", 7),
+  "venus": galleryPaths("venus", 11),
 };
 
 export function getOfficePhotos(slug) {
